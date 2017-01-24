@@ -1,6 +1,7 @@
 require 'nn'
 local hdf5 = require 'hdf5'
 torch.setdefaulttensortype('torch.FloatTensor')
+require 'image'
 
 local function SpatialConvolution(nInputPlane, nOutputPlane, kW, kH, dW, dH, padW, padH)
   local std_epsilon = 0.001
@@ -443,8 +444,9 @@ end
 
 local function test(net)
   net:evaluate()
-  local input = torch.zeros(1,3,299,299)
-  input[{1,1,1,1}] = 1
+  local input = torch.zeros(1,3,299,299) -- [0,1]
+  local img = image.load('lena.png') * 255.0 -- [0,255]
+  input[1] = img:float()
   if opt.cuda then
     input = input:cuda()
   end

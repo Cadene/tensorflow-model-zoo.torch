@@ -1,6 +1,6 @@
 # Tensorflow Model Zoo for Torch7 and PyTorch
 
-This is a porting of tensorflow pretrained models made by [Remi Cadene](http://remicadene.com) and [Micael Carvalho](http://micaelcarvalho.com). It includes only InceptionV4 for now :(
+This is a porting of tensorflow pretrained models made by [Remi Cadene](http://remicadene.com) and [Micael Carvalho](http://micaelcarvalho.com). All models are tested using `lena.png`. We only provide InceptionV4 for now :(
 
 This work was inspired by [inception-v3.torch](https://github.com/Moodstocks/inception-v3.torch).
 
@@ -16,9 +16,17 @@ Please beware of the LICENSE made up by Google before using the pretrained model
 
 ## How to use with Torch7
 
-Please go to [torchnet-vision](https://github.com/Cadene/torchnet-vision). You will find all the pretrained models there :)
+Please go to [torchnet-vision](https://github.com/Cadene/torchnet-vision). You will soon find all the pretrained models there :)
 
-## How to reproduce 
+## How to use with PyTorch
+
+Parameters are available.
+```
+model = InceptionV4(num_classes=1001)
+model.load_state_dict(model_zoo.load_url('https://s3.amazonaws.com/pytorch/models/inceptionv4-58153ba9.pth'))
+```
+
+## How to reproduce the portings
 
 ```
 python3 inceptionv4/tensorflow_dump.py

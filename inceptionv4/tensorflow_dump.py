@@ -159,8 +159,13 @@ with tf.Graph().as_default():
 
   # Create model architecture
 
+  from scipy import misc
+  img = misc.imread('lena.png')
+  print(img.shape)
+
   inputs = np.zeros((1,299,299,3), dtype=np.float32)
-  inputs[0][0][0][0] = 1
+
+  inputs[0] = img
   inputs = tf.pack(inputs)
 
   with slim.arg_scope(inception.inception_v4_arg_scope()):

@@ -4,6 +4,10 @@ import h5py
 import os
 import sys
 
+model_urls = {
+    'inceptionv4': 'https://s3.amazonaws.com/pytorch/models/inceptionv4-58153ba9.pth'
+}
+
 class BasicConv2d(nn.Module):
 
     def __init__(self, in_planes, out_planes, kernel_size, stride, padding=0):
@@ -373,8 +377,13 @@ def load():
 
 def test(model):
     model.eval()
-    inputs = torch.zeros(1,3,299,299)
-    inputs[0,0,0,0] = 1
+    from scipy import misc
+    img = misc.imread('lena.png')
+    inputs = torch.zeros(1,299,299,3)
+    inputs[0] = torch.from_numpy(img)
+    inputs.transpose_(1,3)
+    inputs.transpose_(2,3)
+    # 1, 3, 299, 299
     outputs = model.forward(torch.autograd.Variable(inputs))
     h5f = h5py.File('dump/InceptionV4/Logits.h5', 'r')
     outputs_tf = torch.from_numpy(h5f['out'][()])
