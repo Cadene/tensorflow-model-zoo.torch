@@ -68,6 +68,8 @@ def dump_conv2d_nobn(name='Conv2d_1a_3x3'):
   conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution') # remplacer convolution par Conv2D si erreur
   weights_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/weights:0')
   weights = weights_tensor.eval()
+  biases_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/biases:0')
+  biases = biases_tensor.eval()
   padding = make_padding(conv_operation.get_attr('padding'), weights_tensor.get_shape())
   strides = conv_operation.get_attr('strides')
   conv_out = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution').outputs[0].eval() # remplacer convolution par Conv2D si erreur
@@ -76,6 +78,7 @@ def dump_conv2d_nobn(name='Conv2d_1a_3x3'):
   h5f = h5py.File('dump/InceptionResnetV2/'+name+'.h5', 'w')
   # conv
   h5f.create_dataset("weights", data=weights)
+  h5f.create_dataset("biases", data=biases)
   h5f.create_dataset("strides", data=strides)
   h5f.create_dataset("padding", data=padding)
   h5f.create_dataset("conv_out", data=conv_out)
@@ -89,11 +92,10 @@ def dump_logits():
 
   biases_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/Logits/Logits/biases:0')
   biases = biases_tensor.eval()
-
+  
   out = operation.outputs[0].eval()
 
   h5f = h5py.File('dump/InceptionResnetV2/Logits.h5', 'w')
-  # conv
   h5f.create_dataset("weights", data=weights)
   h5f.create_dataset("biases", data=biases)
   h5f.create_dataset("out", data=out)

@@ -8,8 +8,9 @@ class BasicConv2d(nn.Module):
 
     def __init__(self, in_planes, out_planes, kernel_size, stride, padding=0):
         super(BasicConv2d, self).__init__()
+        eps = 0.0010000000474974513
         self.conv = nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding, bias=False) # verify bias false
-        self.bn = nn.BatchNorm2d(out_planes, eps=0.001, momentum=0, affine=True)
+        self.bn = nn.BatchNorm2d(out_planes, eps=eps, momentum=0, affine=True)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -69,7 +70,7 @@ class Block35(nn.Module):
             BasicConv2d(48, 64, kernel_size=3, stride=1, padding=1)
         )
 
-        self.conv2d = nn.Conv2d(128, 320, kernel_size=1, stride=1, bias=False)
+        self.conv2d = nn.Conv2d(128, 320, kernel_size=1, stride=1)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -77,8 +78,7 @@ class Block35(nn.Module):
         x1 = self.branch1(x)
         x2 = self.branch2(x)
         out = torch.cat((x0, x1, x2), 1)
-        out = self.conv2d(out)
-        out = x + out * self.scale
+        out = self.conv2d(out) * self.scale + x
         out = self.relu(out)
         return out
 
@@ -119,7 +119,7 @@ class Block17(nn.Module):
             BasicConv2d(160, 192, kernel_size=(7,1), stride=1, padding=(3,0))
         )
 
-        self.conv2d = nn.Conv2d(384, 1088, kernel_size=1, stride=1, bias=False)
+        self.conv2d = nn.Conv2d(384, 1088, kernel_size=1, stride=1)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -177,7 +177,7 @@ class Block8(nn.Module):
             BasicConv2d(224, 256, kernel_size=(3,1), stride=1, padding=(1,0))
         )
 
-        self.conv2d = nn.Conv2d(448, 2080, kernel_size=1, stride=1, bias=False)
+        self.conv2d = nn.Conv2d(448, 2080, kernel_size=1, stride=1)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -203,57 +203,57 @@ class InceptionResnetV2(nn.Module):
         self.maxpool_5a = nn.MaxPool2d(3, stride=2)
         self.mixed_5b = Mixed_5b()
         self.repeat = nn.Sequential(
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17),
-            Block35(scale=0.17)
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934),
+            Block35(scale=0.17000000178813934)
         )
         # self.repeat = []
         # for i in range(10):
         #     self.repeat.append(Block35())
         self.mixed_6a = Mixed_6a()
         self.repeat_1 = nn.Sequential(
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10),
-            Block17(scale=0.10)
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612),
+            Block17(scale=0.10000000149011612)
         )
         # self.repeat_1 = []
         # for i in range(20):
         #     self.repeat_1.append(Block17())
         self.mixed_7a = Mixed_7a()
         self.repeat_2 = nn.Sequential(
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20),
-            Block8(scale=0.20)
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224),
+            Block8(scale=0.20000000298023224)
         )
         # self.repeat_2 = []
         # for i in range(9):
@@ -307,7 +307,7 @@ def load_conv2d(state_dict, name_pth, name_tf):
 def load_conv2d_nobn(state_dict, name_pth, name_tf):
     h5f = h5py.File('dump/InceptionResnetV2/'+name_tf+'.h5', 'r')
     state_dict[name_pth+'.weight'] = torch.from_numpy(h5f['weights'][()]).permute(3, 2, 0, 1)
-    out_planes = state_dict[name_pth+'.weight'].size(0)
+    state_dict[name_pth+'.bias'] = torch.from_numpy(h5f['biases'][()])
     h5f.close()
 
 def load_linear(state_dict, name_pth, name_tf):
@@ -413,17 +413,34 @@ def test(model):
     outputs_tf = torch.from_numpy(h5f['out'][()])
     h5f.close()
     outputs = torch.nn.functional.softmax(outputs)
+    print(outputs.sum())
+    print(outputs[0])
+    print(outputs_tf.sum())
+    print(outputs_tf[0])
     print(torch.dist(outputs.data, outputs_tf))
     return outputs
  
 def test_conv2d(module, name):
     #global output_tf
     h5f = h5py.File('dump/InceptionResnetV2/'+name+'.h5', 'r')
-    output_tf = torch.from_numpy(h5f['relu_out'][()])
+    output_tf = torch.from_numpy(h5f['conv_out'][()])
     output_tf.transpose_(1,3)
     output_tf.transpose_(2,3)
     h5f.close()
     def test_dist(self, input, output):
+        print(name, torch.dist(output.data, output_tf))
+    module.conv.register_forward_hook(test_dist)
+
+def test_conv2d_nobn(module, name):
+    #global output_tf
+    h5f = h5py.File('dump/InceptionResnetV2/'+name+'.h5', 'r')
+    output_tf = torch.from_numpy(h5f['conv_out'][()])
+    output_tf.transpose_(1,3)
+    output_tf.transpose_(2,3)
+    h5f.close()
+    def test_dist(self, input, output):
+        print(output.data.mean())
+        print(output_tf.mean())
         print(name, torch.dist(output.data, output_tf))
     module.register_forward_hook(test_dist)
 
@@ -443,13 +460,36 @@ def test_block35(module, name):
     test_conv2d(module.branch2[0], name+'/Branch_2/Conv2d_0a_1x1')
     test_conv2d(module.branch2[1], name+'/Branch_2/Conv2d_0b_3x3')
     test_conv2d(module.branch2[2], name+'/Branch_2/Conv2d_0c_3x3')
-    #test_conv2d(module.conv2d, name+'/Conv2d_1x1')
+    test_conv2d_nobn(module.conv2d, name+'/Conv2d_1x1')
 
 def test_mixed_6a(module, name):
     test_conv2d(module.branch0, name+'/Branch_0/Conv2d_1a_3x3')
     test_conv2d(module.branch1[0], name+'/Branch_1/Conv2d_0a_1x1')
     test_conv2d(module.branch1[1], name+'/Branch_1/Conv2d_0b_3x3')
     test_conv2d(module.branch1[2], name+'/Branch_1/Conv2d_1a_3x3')
+
+def test_block17(module, name):
+    test_conv2d(module.branch0, name+'/Branch_0/Conv2d_1x1')
+    test_conv2d(module.branch1[0], name+'/Branch_1/Conv2d_0a_1x1')
+    test_conv2d(module.branch1[1], name+'/Branch_1/Conv2d_0b_1x7')
+    test_conv2d(module.branch1[2], name+'/Branch_1/Conv2d_0c_7x1')
+    test_conv2d_nobn(module.conv2d, name+'/Conv2d_1x1')
+
+def test_mixed_7a(module, name):
+    test_conv2d(module.branch0[0], name+'/Branch_0/Conv2d_0a_1x1')
+    test_conv2d(module.branch0[1], name+'/Branch_0/Conv2d_1a_3x3')
+    test_conv2d(module.branch1[0], name+'/Branch_1/Conv2d_0a_1x1')
+    test_conv2d(module.branch1[1], name+'/Branch_1/Conv2d_1a_3x3')
+    test_conv2d(module.branch2[0], name+'/Branch_2/Conv2d_0a_1x1')
+    test_conv2d(module.branch2[1], name+'/Branch_2/Conv2d_0b_3x3')
+    test_conv2d(module.branch2[2], name+'/Branch_2/Conv2d_1a_3x3')
+
+def test_block8(module, name):
+    test_conv2d(module.branch0, name+'/Branch_0/Conv2d_1x1')
+    test_conv2d(module.branch1[0], name+'/Branch_1/Conv2d_0a_1x1')
+    test_conv2d(module.branch1[1], name+'/Branch_1/Conv2d_0b_1x3')
+    test_conv2d(module.branch1[2], name+'/Branch_1/Conv2d_0c_3x1')
+    test_conv2d_nobn(module.conv2d, name+'/Conv2d_1x1')
 
 
 
@@ -470,17 +510,29 @@ test_conv2d(model.conv2d_2a, 'Conv2d_2a_3x3')
 test_conv2d(model.conv2d_2b, 'Conv2d_2b_3x3')
 test_conv2d(model.conv2d_3b, 'Conv2d_3b_1x1')
 test_conv2d(model.conv2d_4a, 'Conv2d_4a_3x3')
+
 test_mixed_5b(model.mixed_5b, 'Mixed_5b')
+
 for i in range(len(model.repeat._modules)):
     test_block35(model.repeat[i], 'Repeat/block35_'+str(i+1))
+
 test_mixed_6a(model.mixed_6a, 'Mixed_6a')
+
+for i in range(len(model.repeat_1._modules)):
+    test_block17(model.repeat_1[i], 'Repeat_1/block17_'+str(i+1))
+
+test_mixed_7a(model.mixed_7a, 'Mixed_7a')
+
+for i in range(len(model.repeat_2._modules)):
+    test_block8(model.repeat_2[i], 'Repeat_2/block8_'+str(i+1))
+
+test_block8(model.block8, 'Block8')
+
+test_conv2d(model.conv2d_7b, 'Conv2d_7b_1x1')
+
+outputs = test(model)
 # test_conv2d(model.features[1], 'Conv2d_2a_3x3')
 # test_conv2d(model.features[2], 'Conv2d_2b_3x3')
 # test_conv2d(model.features[3].conv, 'Mixed_3a/Branch_1/Conv2d_0a_3x3')
 #test_mixed_4a_7a(model.features[4], 'Mixed_4a')
-
-
-
-outputs = test(model)
-
 
