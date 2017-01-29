@@ -378,7 +378,7 @@ def load():
 def test(model):
     model.eval()
     from scipy import misc
-    img = misc.imread('lena.png')
+    img = misc.imread('lena_299.png')
     inputs = torch.zeros(1,299,299,3)
     inputs[0] = torch.from_numpy(img)
     inputs.transpose_(1,3)

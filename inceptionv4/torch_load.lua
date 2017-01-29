@@ -445,7 +445,7 @@ end
 local function test(net)
   net:evaluate()
   local input = torch.zeros(1,3,299,299) -- [0,1]
-  local img = image.load('lena.png') * 255.0 -- [0,255]
+  local img = image.load('lena_299.png') * 255.0 -- [0,255]
   input[1] = img:float()
   if opt.cuda then
     input = input:cuda()

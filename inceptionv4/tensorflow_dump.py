@@ -160,7 +160,7 @@ with tf.Graph().as_default():
   # Create model architecture
 
   from scipy import misc
-  img = misc.imread('lena.png')
+  img = misc.imread('lena_299.png')
   print(img.shape)
 
   inputs = np.zeros((1,299,299,3), dtype=np.float32)
