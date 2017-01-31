@@ -4,14 +4,17 @@ import h5py
 import os
 import sys
 
+model_urls = {
+    'imagenet': 'http://webia.lip6.fr/~cadene/Downloads/inceptionresnetv2-d579a627.pth'
+}
+
 class BasicConv2d(nn.Module):
 
     def __init__(self, in_planes, out_planes, kernel_size, stride, padding=0):
         super(BasicConv2d, self).__init__()
-        eps = 0.0010000000474974513
         self.conv = nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding, bias=False) # verify bias false
-        self.bn = nn.BatchNorm2d(out_planes, eps=eps, momentum=0, affine=True)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn = nn.BatchNorm2d(out_planes, eps=0.001, momentum=0, affine=True)
+        self.relu = nn.ReLU(inplace=False)
 
     def forward(self, x):
         x = self.conv(x)
@@ -71,14 +74,15 @@ class Block35(nn.Module):
         )
 
         self.conv2d = nn.Conv2d(128, 320, kernel_size=1, stride=1)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
 
     def forward(self, x):
         x0 = self.branch0(x)
         x1 = self.branch1(x)
         x2 = self.branch2(x)
         out = torch.cat((x0, x1, x2), 1)
-        out = self.conv2d(out) * self.scale + x
+        out = self.conv2d(out)
+        out = out * self.scale + x
         out = self.relu(out)
         return out
 
@@ -120,14 +124,14 @@ class Block17(nn.Module):
         )
 
         self.conv2d = nn.Conv2d(384, 1088, kernel_size=1, stride=1)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
 
     def forward(self, x):
         x0 = self.branch0(x)
         x1 = self.branch1(x)
         out = torch.cat((x0, x1), 1)
         out = self.conv2d(out)
-        out = x + out * self.scale
+        out = out * self.scale + x
         out = self.relu(out)
         return out
 
@@ -180,14 +184,14 @@ class Block8(nn.Module):
 
         self.conv2d = nn.Conv2d(448, 2080, kernel_size=1, stride=1)
         if not self.noReLU:
-            self.relu = nn.ReLU(inplace=True)
+            self.relu = nn.ReLU(inplace=False)
 
     def forward(self, x):
         x0 = self.branch0(x)
         x1 = self.branch1(x)
         out = torch.cat((x0, x1), 1)
         out = self.conv2d(out)
-        out = x + out * self.scale
+        out = out * self.scale + x
         if not self.noReLU:
             out = self.relu(out)
         return out
@@ -206,61 +210,52 @@ class InceptionResnetV2(nn.Module):
         self.maxpool_5a = nn.MaxPool2d(3, stride=2)
         self.mixed_5b = Mixed_5b()
         self.repeat = nn.Sequential(
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934),
-            Block35(scale=0.17000000178813934)
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17),
+            Block35(scale=0.17)
         )
-        # self.repeat = []
-        # for i in range(10):
-        #     self.repeat.append(Block35())
         self.mixed_6a = Mixed_6a()
         self.repeat_1 = nn.Sequential(
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612),
-            Block17(scale=0.10000000149011612)
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10),
+            Block17(scale=0.10)
         )
-        # self.repeat_1 = []
-        # for i in range(20):
-        #     self.repeat_1.append(Block17())
         self.mixed_7a = Mixed_7a()
         self.repeat_2 = nn.Sequential(
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224),
-            Block8(scale=0.20000000298023224)
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20),
+            Block8(scale=0.20)
         )
-        # self.repeat_2 = []
-        # for i in range(9):
-        #     self.repeat_2.append(Block8())
         self.block8 = Block8(noReLU=True)
         self.conv2d_7b = BasicConv2d(2080, 1536, kernel_size=1, stride=1)
         self.avgpool_1a = nn.AvgPool2d(8, count_include_pad=False)
@@ -275,16 +270,10 @@ class InceptionResnetV2(nn.Module):
         x = self.conv2d_4a(x)
         x = self.maxpool_5a(x)
         x = self.mixed_5b(x)
-        # for block35 in self.repeat:
-        #     x = self.block35(x)
         x = self.repeat(x)
         x = self.mixed_6a(x)
-        # for block17 in self.repeat_1:
-        #     x = self.block17(x)
         x = self.repeat_1(x)
         x = self.mixed_7a(x)
-        # for block8 in self.repeat_2:
-        #     x = self.block8(x)
         x = self.repeat_2(x)
         x = self.block8(x)
         x = self.conv2d_7b(x)
@@ -292,6 +281,19 @@ class InceptionResnetV2(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.classif(x) 
         return x
+
+def inceptionresnetv2(pretrained=True):
+    r"""InceptionResnetV2 model architecture from the
+    `"InceptionV4, Inception-ResNet..." <https://arxiv.org/abs/1602.07261>`_ paper.
+
+    Args:
+        pretrained ('string'): If True, returns a model pre-trained on ImageNet
+    """
+    model = InceptionResnetV2()
+    if pretrained is not None:
+        model.load_state_dict(model_zoo.load_url(model_urls['imagenet']))
+    return model
+
 
 ######################################################################
 ## Load parameters from HDF5 to Dict
@@ -406,13 +408,20 @@ def load():
 def test(model):
     from scipy import misc
     img = misc.imread('lena_299.png')
-    inputs = torch.zeros(1,299,299,3)
-    inputs[0] = torch.from_numpy(img)
+    inputs = torch.ones(1,299,299,3)
+    #inputs[0] = torch.from_numpy(img)
+
+    inputs[0,0,0,0] = -1
     inputs.transpose_(1,3)
     inputs.transpose_(2,3)
-    inputs.sub_(0.5).div_(0.5)
+
+    print(inputs.mean())
+    print(inputs.std())
+
+    #inputs.sub_(0.5).div_(0.5)
     #inputs.sub_(inputs)
     # 1, 3, 299, 299
+
     outputs = model.forward(torch.autograd.Variable(inputs))
     h5f = h5py.File('dump/InceptionResnetV2/Logits.h5', 'r')
     outputs_tf = torch.from_numpy(h5f['out'][()])
@@ -423,8 +432,6 @@ def test(model):
     print(outputs_tf.sum())
     print(outputs_tf[0])
     print(torch.dist(outputs.data, outputs_tf))
-    print(torch.max(outputs.data))
-    print(torch.max(outputs_tf))
     return outputs
  
 def test_conv2d(module, name):
@@ -502,48 +509,48 @@ def test_block8(module, name):
     test_conv2d(module.branch1[2], name+'/Branch_1/Conv2d_0c_3x1')
     test_conv2d_nobn(module.conv2d, name+'/Conv2d_1x1')
 
-
-
 ######################################################################
 ## Main
 ######################################################################
 
-model = InceptionResnetV2()
-state_dict = load()
-model.load_state_dict(state_dict)
-model.eval()
+if __name__ == "__main__":
 
-torch.save(model, 'save/inceptionresnetv2.pth')
-torch.save(state_dict, 'save/inceptionresnetv2_state.pth')
+    model = InceptionResnetV2()
+    state_dict = load()
+    model.load_state_dict(state_dict)
+    model.eval()
 
-test_conv2d(model.conv2d_1a, 'Conv2d_1a_3x3')
-test_conv2d(model.conv2d_2a, 'Conv2d_2a_3x3')
-test_conv2d(model.conv2d_2b, 'Conv2d_2b_3x3')
-test_conv2d(model.conv2d_3b, 'Conv2d_3b_1x1')
-test_conv2d(model.conv2d_4a, 'Conv2d_4a_3x3')
+    torch.save(model, 'save/inceptionresnetv2.pth')
+    torch.save(state_dict, 'save/inceptionresnetv2_state.pth')
 
-test_mixed_5b(model.mixed_5b, 'Mixed_5b')
+    test_conv2d(model.conv2d_1a, 'Conv2d_1a_3x3')
+    test_conv2d(model.conv2d_2a, 'Conv2d_2a_3x3')
+    test_conv2d(model.conv2d_2b, 'Conv2d_2b_3x3')
+    test_conv2d(model.conv2d_3b, 'Conv2d_3b_1x1')
+    test_conv2d(model.conv2d_4a, 'Conv2d_4a_3x3')
 
-for i in range(len(model.repeat._modules)):
-    test_block35(model.repeat[i], 'Repeat/block35_'+str(i+1))
+    test_mixed_5b(model.mixed_5b, 'Mixed_5b')
 
-test_mixed_6a(model.mixed_6a, 'Mixed_6a')
+    for i in range(len(model.repeat._modules)):
+        test_block35(model.repeat[i], 'Repeat/block35_'+str(i+1))
 
-for i in range(len(model.repeat_1._modules)):
-    test_block17(model.repeat_1[i], 'Repeat_1/block17_'+str(i+1))
+    test_mixed_6a(model.mixed_6a, 'Mixed_6a')
 
-test_mixed_7a(model.mixed_7a, 'Mixed_7a')
+    for i in range(len(model.repeat_1._modules)):
+        test_block17(model.repeat_1[i], 'Repeat_1/block17_'+str(i+1))
 
-for i in range(len(model.repeat_2._modules)):
-    test_block8(model.repeat_2[i], 'Repeat_2/block8_'+str(i+1))
+    test_mixed_7a(model.mixed_7a, 'Mixed_7a')
 
-test_block8(model.block8, 'Block8')
+    for i in range(len(model.repeat_2._modules)):
+        test_block8(model.repeat_2[i], 'Repeat_2/block8_'+str(i+1))
 
-test_conv2d(model.conv2d_7b, 'Conv2d_7b_1x1')
+    test_block8(model.block8, 'Block8')
 
-outputs = test(model)
-# test_conv2d(model.features[1], 'Conv2d_2a_3x3')
-# test_conv2d(model.features[2], 'Conv2d_2b_3x3')
-# test_conv2d(model.features[3].conv, 'Mixed_3a/Branch_1/Conv2d_0a_3x3')
-#test_mixed_4a_7a(model.features[4], 'Mixed_4a')
+    test_conv2d(model.conv2d_7b, 'Conv2d_7b_1x1')
+
+    outputs = test(model)
+    # test_conv2d(model.features[1], 'Conv2d_2a_3x3')
+    # test_conv2d(model.features[2], 'Conv2d_2b_3x3')
+    # test_conv2d(model.features[3].conv, 'Mixed_3a/Branch_1/Conv2d_0a_3x3')
+    #test_mixed_4a_7a(model.features[4], 'Mixed_4a')
 

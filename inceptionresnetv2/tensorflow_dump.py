@@ -1,7 +1,10 @@
 # python3
 
 # TensorBoard
-# python3 ~/.local/lib/python3.5/site-packages/tensorflow/tensorboard/tensorboard.py --logdir=logs --port=6007
+# python ~/.local/lib/python3.5/site-packages/tensorflow/tensorboard/tensorboard.py --logdir=logs --port=6007
+
+# python /home/cadene/anaconda3/envs/tensorflow/lib/python3.5/site-packages/tensorflow/tensorboard/tensorboard.py  --logdir=logs --port=6007
+
 
 import os
 import sys
@@ -35,12 +38,12 @@ def make_padding(padding_name, conv_shape):
     sys.exit('Invalid padding name '+padding_name)
 
 def dump_conv2d(name='Conv2d_1a_3x3'):
-  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/Conv2D') # remplacer convolution par Conv2D si erreur
+  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution') # remplacer convolution par Conv2D si erreur
   weights_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/weights:0')
   weights = weights_tensor.eval()
   padding = make_padding(conv_operation.get_attr('padding'), weights_tensor.get_shape())
   strides = conv_operation.get_attr('strides')
-  conv_out = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/Conv2D').outputs[0].eval() # remplacer convolution par Conv2D si erreur
+  conv_out = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution').outputs[0].eval() # remplacer convolution par Conv2D si erreur
 
   beta = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/BatchNorm/beta:0').eval()
   #gamma = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/BatchNorm/gamma:0').eval()
@@ -65,7 +68,7 @@ def dump_conv2d(name='Conv2d_1a_3x3'):
   h5f.close()
 
 def dump_conv2d_nobn(name='Conv2d_1x1'):
-  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/Conv2D') # remplacer convolution par Conv2D si erreur
+  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution') # remplacer convolution par Conv2D si erreur
   weights_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/weights:0')
   weights = weights_tensor.eval()
   biases_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/biases:0')
@@ -186,14 +189,17 @@ with tf.Graph().as_default():
   img = misc.imread('lena_299.png')
   print(img.shape)
 
-  inputs = np.zeros((1,299,299,3), dtype=np.float32)
-
-  inputs[0] = img
+  inputs = np.ones((1,299,299,3), dtype=np.float32)
+  inputs[0,0,0,0] = -1
+  #inputs[0] = img
+  print(inputs.mean())
+  print(inputs.std())
   inputs = tf.pack(inputs)
   # tensorflow normalization
   # https://github.com/tensorflow/models/blob/master/slim/preprocessing/inception_preprocessing.py#L273
-  inputs = tf.sub(inputs, 0.5) 
-  inputs = tf.mul(inputs, 2.0)
+  #inputs = tf.sub(inputs, 0.5) 
+  #inputs = tf.mul(inputs, 2.0)
+
 
   with slim.arg_scope(inception.inception_resnet_v2_arg_scope()):
     logits, _ = inception.inception_resnet_v2(inputs, num_classes=1001, is_training=False)
