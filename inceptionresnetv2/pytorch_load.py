@@ -168,6 +168,7 @@ class Block8(nn.Module):
         super(Block8, self).__init__()
 
         self.scale = scale
+        self.noReLU = noReLU
 
         self.branch0 = BasicConv2d(2080, 192, kernel_size=1, stride=1)
 
@@ -178,7 +179,8 @@ class Block8(nn.Module):
         )
 
         self.conv2d = nn.Conv2d(448, 2080, kernel_size=1, stride=1)
-        self.relu = nn.ReLU(inplace=True)
+        if not self.noReLU:
+            self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         x0 = self.branch0(x)
@@ -186,7 +188,8 @@ class Block8(nn.Module):
         out = torch.cat((x0, x1), 1)
         out = self.conv2d(out)
         out = x + out * self.scale
-        out = self.relu(out)
+        if not self.noReLU:
+            out = self.relu(out)
         return out
 
 
@@ -407,6 +410,8 @@ def test(model):
     inputs[0] = torch.from_numpy(img)
     inputs.transpose_(1,3)
     inputs.transpose_(2,3)
+    inputs.sub_(0.5).div_(0.5)
+    #inputs.sub_(inputs)
     # 1, 3, 299, 299
     outputs = model.forward(torch.autograd.Variable(inputs))
     h5f = h5py.File('dump/InceptionResnetV2/Logits.h5', 'r')
@@ -418,18 +423,26 @@ def test(model):
     print(outputs_tf.sum())
     print(outputs_tf[0])
     print(torch.dist(outputs.data, outputs_tf))
+    print(torch.max(outputs.data))
+    print(torch.max(outputs_tf))
     return outputs
  
 def test_conv2d(module, name):
     #global output_tf
     h5f = h5py.File('dump/InceptionResnetV2/'+name+'.h5', 'r')
-    output_tf = torch.from_numpy(h5f['conv_out'][()])
-    output_tf.transpose_(1,3)
-    output_tf.transpose_(2,3)
+    output_tf_conv = torch.from_numpy(h5f['conv_out'][()])
+    output_tf_conv.transpose_(1,3)
+    output_tf_conv.transpose_(2,3)
+    output_tf_relu = torch.from_numpy(h5f['relu_out'][()])
+    output_tf_relu.transpose_(1,3)
+    output_tf_relu.transpose_(2,3)
     h5f.close()
-    def test_dist(self, input, output):
-        print(name, torch.dist(output.data, output_tf))
-    module.conv.register_forward_hook(test_dist)
+    def test_dist_conv(self, input, output):
+        print(name, 'conv', torch.dist(output.data, output_tf_conv))
+    module.conv.register_forward_hook(test_dist_conv)
+    def test_dist_relu(self, input, output):
+        print(name, 'relu', torch.dist(output.data, output_tf_relu))
+    module.relu.register_forward_hook(test_dist_relu)
 
 def test_conv2d_nobn(module, name):
     #global output_tf
@@ -439,9 +452,7 @@ def test_conv2d_nobn(module, name):
     output_tf.transpose_(2,3)
     h5f.close()
     def test_dist(self, input, output):
-        print(output.data.mean())
-        print(output_tf.mean())
-        print(name, torch.dist(output.data, output_tf))
+        print(name, 'conv+bias', torch.dist(output.data, output_tf))
     module.register_forward_hook(test_dist)
 
 def test_mixed_5b(module, name):
