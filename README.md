@@ -13,7 +13,7 @@ This work was inspired by [inception-v3.torch](https://github.com/Moodstocks/inc
 
 Please install [torchnet-vision](https://github.com/Cadene/torchnet-vision).
 ```
-luarocks install torchnet-vision
+luarocks install --server=http://luarocks.org/dev torchnet-vision
 ```
 
 Models available:
@@ -52,7 +52,7 @@ output = net:forward(augmentation(image.lena()))
 
 ### PyTorch
 
-Currently on the way! On pytorch/vision maybe!
+Currently available in this repo only On pytorch/vision maybe!
 
 Models available:
 
