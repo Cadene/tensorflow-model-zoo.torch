@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import h5py
+import torch.utils.model_zoo as model_zoo
 import os
 import sys
 
@@ -290,7 +290,7 @@ def inceptionresnetv2(pretrained=True):
         pretrained ('string'): If True, returns a model pre-trained on ImageNet
     """
     model = InceptionResnetV2()
-    if pretrained is not None:
+    if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['imagenet']))
     return model
 
@@ -515,11 +515,14 @@ def test_block8(module, name):
 
 if __name__ == "__main__":
 
+    import h5py
+
     model = InceptionResnetV2()
     state_dict = load()
     model.load_state_dict(state_dict)
     model.eval()
 
+    os.system('mkdir -p save')
     torch.save(model, 'save/inceptionresnetv2.pth')
     torch.save(state_dict, 'save/inceptionresnetv2_state.pth')
 

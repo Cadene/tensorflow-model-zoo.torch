@@ -38,12 +38,12 @@ def make_padding(padding_name, conv_shape):
     sys.exit('Invalid padding name '+padding_name)
 
 def dump_conv2d(name='Conv2d_1a_3x3'):
-  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution') # remplacer convolution par Conv2D si erreur
+  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/Conv2D') # remplacer convolution par Conv2D si erreur
   weights_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/weights:0')
   weights = weights_tensor.eval()
   padding = make_padding(conv_operation.get_attr('padding'), weights_tensor.get_shape())
   strides = conv_operation.get_attr('strides')
-  conv_out = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution').outputs[0].eval() # remplacer convolution par Conv2D si erreur
+  conv_out = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/Conv2D').outputs[0].eval() # remplacer convolution par Conv2D si erreur
 
   beta = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/BatchNorm/beta:0').eval()
   #gamma = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/BatchNorm/gamma:0').eval()
@@ -68,7 +68,7 @@ def dump_conv2d(name='Conv2d_1a_3x3'):
   h5f.close()
 
 def dump_conv2d_nobn(name='Conv2d_1x1'):
-  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/convolution') # remplacer convolution par Conv2D si erreur
+  conv_operation = sess.graph.get_operation_by_name('InceptionResnetV2/'+name+'/Conv2D') # remplacer convolution par Conv2D si erreur
   weights_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/weights:0')
   weights = weights_tensor.eval()
   biases_tensor = sess.graph.get_tensor_by_name('InceptionResnetV2/'+name+'/biases:0')

@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-import h5py
+import torch.utils.model_zoo as model_zoo
 import os
 import sys
 
 model_urls = {
-    'inceptionv4': 'https://s3.amazonaws.com/pytorch/models/inceptionv4-58153ba9.pth'
+    'imagenet': 'http://webia.lip6.fr/~cadene/Downloads/inceptionv4-97ef9c30.pth'
 }
 
 class BasicConv2d(nn.Module):
@@ -40,12 +40,12 @@ class Mixed_4a(nn.Module):
     def __init__(self):
         super(Mixed_4a, self).__init__()
 
-        self.block0 = nn.Sequential(
+        self.branch0 = nn.Sequential(
             BasicConv2d(160, 64, kernel_size=1, stride=1),
             BasicConv2d(64, 96, kernel_size=3, stride=1)
         )
 
-        self.block1 = nn.Sequential(
+        self.branch1 = nn.Sequential(
             BasicConv2d(160, 64, kernel_size=1, stride=1),
             BasicConv2d(64, 64, kernel_size=(1,7), stride=1, padding=(0,3)),
             BasicConv2d(64, 64, kernel_size=(7,1), stride=1, padding=(3,0)),
@@ -53,8 +53,8 @@ class Mixed_4a(nn.Module):
         )
 
     def forward(self, x):
-        x0 = self.block0(x)
-        x1 = self.block1(x)
+        x0 = self.branch0(x)
+        x1 = self.branch1(x)
         out = torch.cat((x0, x1), 1)
         return out
 
@@ -75,29 +75,29 @@ class Inception_A(nn.Module):
 
     def __init__(self):
         super(Inception_A, self).__init__()
-        self.block0 = BasicConv2d(384, 96, kernel_size=1, stride=1)
+        self.branch0 = BasicConv2d(384, 96, kernel_size=1, stride=1)
 
-        self.block1 = nn.Sequential(
+        self.branch1 = nn.Sequential(
             BasicConv2d(384, 64, kernel_size=1, stride=1),
             BasicConv2d(64, 96, kernel_size=3, stride=1, padding=1)
         )
 
-        self.block2 = nn.Sequential(
+        self.branch2 = nn.Sequential(
             BasicConv2d(384, 64, kernel_size=1, stride=1),
             BasicConv2d(64, 96, kernel_size=3, stride=1, padding=1),
             BasicConv2d(96, 96, kernel_size=3, stride=1, padding=1)
         )
 
-        self.block3 = nn.Sequential(
+        self.branch3 = nn.Sequential(
             nn.AvgPool2d(3, stride=1, padding=1, count_include_pad=False),
             BasicConv2d(384, 96, kernel_size=1, stride=1)
         )
 
     def forward(self, x):
-        x0 = self.block0(x)
-        x1 = self.block1(x)
-        x2 = self.block2(x)
-        x3 = self.block3(x)
+        x0 = self.branch0(x)
+        x1 = self.branch1(x)
+        x2 = self.branch2(x)
+        x3 = self.branch3(x)
         out = torch.cat((x0, x1, x2, x3), 1)
         return out
 
@@ -105,20 +105,20 @@ class Reduction_A(nn.Module):
 
     def __init__(self):
         super(Reduction_A, self).__init__()
-        self.block0 = BasicConv2d(384, 384, kernel_size=3, stride=2)
+        self.branch0 = BasicConv2d(384, 384, kernel_size=3, stride=2)
 
-        self.block1 = nn.Sequential(
+        self.branch1 = nn.Sequential(
             BasicConv2d(384, 192, kernel_size=1, stride=1),
             BasicConv2d(192, 224, kernel_size=3, stride=1, padding=1),
             BasicConv2d(224, 256, kernel_size=3, stride=2)
         )
         
-        self.block2 = nn.MaxPool2d(3, stride=2)
+        self.branch2 = nn.MaxPool2d(3, stride=2)
 
     def forward(self, x):
-        x0 = self.block0(x)
-        x1 = self.block1(x)
-        x2 = self.block2(x)
+        x0 = self.branch0(x)
+        x1 = self.branch1(x)
+        x2 = self.branch2(x)
         out = torch.cat((x0, x1, x2), 1)
         return out
 
@@ -126,15 +126,15 @@ class Inception_B(nn.Module):
 
     def __init__(self):
         super(Inception_B, self).__init__()
-        self.block0 = BasicConv2d(1024, 384, kernel_size=1, stride=1)
+        self.branch0 = BasicConv2d(1024, 384, kernel_size=1, stride=1)
         
-        self.block1 = nn.Sequential(
+        self.branch1 = nn.Sequential(
             BasicConv2d(1024, 192, kernel_size=1, stride=1),
             BasicConv2d(192, 224, kernel_size=(1,7), stride=1, padding=(0,3)),
             BasicConv2d(224, 256, kernel_size=(7,1), stride=1, padding=(3,0))
         )
 
-        self.block2 = nn.Sequential(
+        self.branch2 = nn.Sequential(
             BasicConv2d(1024, 192, kernel_size=1, stride=1),
             BasicConv2d(192, 192, kernel_size=(7,1), stride=1, padding=(3,0)),
             BasicConv2d(192, 224, kernel_size=(1,7), stride=1, padding=(0,3)),
@@ -142,16 +142,16 @@ class Inception_B(nn.Module):
             BasicConv2d(224, 256, kernel_size=(1,7), stride=1, padding=(0,3))
         )
 
-        self.block3 = nn.Sequential(
+        self.branch3 = nn.Sequential(
             nn.AvgPool2d(3, stride=1, padding=1, count_include_pad=False),
             BasicConv2d(1024, 128, kernel_size=1, stride=1)
         )
 
     def forward(self, x):
-        x0 = self.block0(x)
-        x1 = self.block1(x)
-        x2 = self.block2(x)
-        x3 = self.block3(x)
+        x0 = self.branch0(x)
+        x1 = self.branch1(x)
+        x2 = self.branch2(x)
+        x3 = self.branch3(x)
         out = torch.cat((x0, x1, x2, x3), 1)
         return out
 
@@ -160,24 +160,24 @@ class Reduction_B(nn.Module):
     def __init__(self):
         super(Reduction_B, self).__init__()
 
-        self.block0 = nn.Sequential(
+        self.branch0 = nn.Sequential(
             BasicConv2d(1024, 192, kernel_size=1, stride=1),
             BasicConv2d(192, 192, kernel_size=3, stride=2)
         )
 
-        self.block1 = nn.Sequential(
+        self.branch1 = nn.Sequential(
             BasicConv2d(1024, 256, kernel_size=1, stride=1),
             BasicConv2d(256, 256, kernel_size=(1,7), stride=1, padding=(0,3)),
             BasicConv2d(256, 320, kernel_size=(7,1), stride=1, padding=(3,0)),
             BasicConv2d(320, 320, kernel_size=3, stride=2)
         )
 
-        self.block2 = nn.MaxPool2d(3, stride=2)
+        self.branch2 = nn.MaxPool2d(3, stride=2)
 
     def forward(self, x):
-        x0 = self.block0(x)
-        x1 = self.block1(x)
-        x2 = self.block2(x)
+        x0 = self.branch0(x)
+        x1 = self.branch1(x)
+        x2 = self.branch2(x)
         out = torch.cat((x0, x1, x2), 1)
         return out
 
@@ -186,39 +186,39 @@ class Inception_C(nn.Module):
     def __init__(self):
         super(Inception_C, self).__init__()
 
-        self.block0 = BasicConv2d(1536, 256, kernel_size=1, stride=1)
+        self.branch0 = BasicConv2d(1536, 256, kernel_size=1, stride=1)
         
-        self.block1_0 = BasicConv2d(1536, 384, kernel_size=1, stride=1)
-        self.block1_1a = BasicConv2d(384, 256, kernel_size=(1,3), stride=1, padding=(0,1))
-        self.block1_1b = BasicConv2d(384, 256, kernel_size=(3,1), stride=1, padding=(1,0))
+        self.branch1_0 = BasicConv2d(1536, 384, kernel_size=1, stride=1)
+        self.branch1_1a = BasicConv2d(384, 256, kernel_size=(1,3), stride=1, padding=(0,1))
+        self.branch1_1b = BasicConv2d(384, 256, kernel_size=(3,1), stride=1, padding=(1,0))
         
-        self.block2_0 = BasicConv2d(1536, 384, kernel_size=1, stride=1)
-        self.block2_1 = BasicConv2d(384, 448, kernel_size=(3,1), stride=1, padding=(1,0))
-        self.block2_2 = BasicConv2d(448, 512, kernel_size=(1,3), stride=1, padding=(0,1))
-        self.block2_3a = BasicConv2d(512, 256, kernel_size=(1,3), stride=1, padding=(0,1))
-        self.block2_3b = BasicConv2d(512, 256, kernel_size=(3,1), stride=1, padding=(1,0))
+        self.branch2_0 = BasicConv2d(1536, 384, kernel_size=1, stride=1)
+        self.branch2_1 = BasicConv2d(384, 448, kernel_size=(3,1), stride=1, padding=(1,0))
+        self.branch2_2 = BasicConv2d(448, 512, kernel_size=(1,3), stride=1, padding=(0,1))
+        self.branch2_3a = BasicConv2d(512, 256, kernel_size=(1,3), stride=1, padding=(0,1))
+        self.branch2_3b = BasicConv2d(512, 256, kernel_size=(3,1), stride=1, padding=(1,0))
         
-        self.block3 = nn.Sequential(
+        self.branch3 = nn.Sequential(
             nn.AvgPool2d(3, stride=1, padding=1, count_include_pad=False),
             BasicConv2d(1536, 256, kernel_size=1, stride=1)
         )
 
     def forward(self, x):
-        x0 = self.block0(x)
+        x0 = self.branch0(x)
         
-        x1_0 = self.block1_0(x)
-        x1_1a = self.block1_1a(x1_0)
-        x1_1b = self.block1_1b(x1_0)
+        x1_0 = self.branch1_0(x)
+        x1_1a = self.branch1_1a(x1_0)
+        x1_1b = self.branch1_1b(x1_0)
         x1 = torch.cat((x1_1a, x1_1b), 1)
 
-        x2_0 = self.block2_0(x)
-        x2_1 = self.block2_1(x2_0)
-        x2_2 = self.block2_2(x2_1)
-        x2_3a = self.block2_3a(x2_2)
-        x2_3b = self.block2_3b(x2_2)
+        x2_0 = self.branch2_0(x)
+        x2_1 = self.branch2_1(x2_0)
+        x2_2 = self.branch2_2(x2_1)
+        x2_3a = self.branch2_3a(x2_2)
+        x2_3b = self.branch2_3b(x2_2)
         x2 = torch.cat((x2_3a, x2_3b), 1)
 
-        x3 = self.block3(x)
+        x3 = self.branch3(x)
 
         out = torch.cat((x0, x1, x2, x3), 1)
         return out
@@ -260,12 +260,10 @@ class InceptionV4(nn.Module):
         x = self.classif(x) 
         return x
 
-def inceptionv4(pretrained=False, num_classes=1001):
+def inceptionv4(pretrained=True):
+    model = InceptionV4()
     if pretrained:
-        model = InceptionV4(num_classes=1001)
-        model.load_state_dict(model_zoo.load_url(model_urls['inceptionv4']))
-    else:
-        model = InceptionV4(num_classes=num_classes)
+        model.load_state_dict(model_zoo.load_url(model_urls['imagenet']))
     return model
 
 ######################################################################
@@ -289,45 +287,45 @@ def load_linear(state_dict, name_pth, name_tf):
     h5f.close()
 
 def load_mixed_4a_7a(state_dict, name_pth, name_tf):
-    load_conv2d(state_dict, name_pth+'.block0.0', name_tf+'/Branch_0/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block0.1', name_tf+'/Branch_0/Conv2d_1a_3x3')
-    load_conv2d(state_dict, name_pth+'.block1.0', name_tf+'/Branch_1/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1.1', name_tf+'/Branch_1/Conv2d_0b_1x7')
-    load_conv2d(state_dict, name_pth+'.block1.2', name_tf+'/Branch_1/Conv2d_0c_7x1')
-    load_conv2d(state_dict, name_pth+'.block1.3', name_tf+'/Branch_1/Conv2d_1a_3x3')
+    load_conv2d(state_dict, name_pth+'.branch0.0', name_tf+'/Branch_0/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch0.1', name_tf+'/Branch_0/Conv2d_1a_3x3')
+    load_conv2d(state_dict, name_pth+'.branch1.0', name_tf+'/Branch_1/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1.1', name_tf+'/Branch_1/Conv2d_0b_1x7')
+    load_conv2d(state_dict, name_pth+'.branch1.2', name_tf+'/Branch_1/Conv2d_0c_7x1')
+    load_conv2d(state_dict, name_pth+'.branch1.3', name_tf+'/Branch_1/Conv2d_1a_3x3')
 
 def load_mixed_5(state_dict, name_pth, name_tf):
-    load_conv2d(state_dict, name_pth+'.block0', name_tf+'/Branch_0/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1.0', name_tf+'/Branch_1/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1.1', name_tf+'/Branch_1/Conv2d_0b_3x3')
-    load_conv2d(state_dict, name_pth+'.block2.0', name_tf+'/Branch_2/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block2.1', name_tf+'/Branch_2/Conv2d_0b_3x3')
-    load_conv2d(state_dict, name_pth+'.block2.2', name_tf+'/Branch_2/Conv2d_0c_3x3')
-    load_conv2d(state_dict, name_pth+'.block3.1', name_tf+'/Branch_3/Conv2d_0b_1x1')
+    load_conv2d(state_dict, name_pth+'.branch0', name_tf+'/Branch_0/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1.0', name_tf+'/Branch_1/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1.1', name_tf+'/Branch_1/Conv2d_0b_3x3')
+    load_conv2d(state_dict, name_pth+'.branch2.0', name_tf+'/Branch_2/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch2.1', name_tf+'/Branch_2/Conv2d_0b_3x3')
+    load_conv2d(state_dict, name_pth+'.branch2.2', name_tf+'/Branch_2/Conv2d_0c_3x3')
+    load_conv2d(state_dict, name_pth+'.branch3.1', name_tf+'/Branch_3/Conv2d_0b_1x1')
 
 def load_mixed_6(state_dict, name_pth, name_tf):
-    load_conv2d(state_dict, name_pth+'.block0', name_tf+'/Branch_0/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1.0', name_tf+'/Branch_1/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1.1', name_tf+'/Branch_1/Conv2d_0b_1x7')
-    load_conv2d(state_dict, name_pth+'.block1.2', name_tf+'/Branch_1/Conv2d_0c_7x1')
-    load_conv2d(state_dict, name_pth+'.block2.0', name_tf+'/Branch_2/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block2.1', name_tf+'/Branch_2/Conv2d_0b_7x1')
-    load_conv2d(state_dict, name_pth+'.block2.2', name_tf+'/Branch_2/Conv2d_0c_1x7')
-    load_conv2d(state_dict, name_pth+'.block2.3', name_tf+'/Branch_2/Conv2d_0d_7x1')
-    load_conv2d(state_dict, name_pth+'.block2.4', name_tf+'/Branch_2/Conv2d_0e_1x7')
-    load_conv2d(state_dict, name_pth+'.block3.1', name_tf+'/Branch_3/Conv2d_0b_1x1')
+    load_conv2d(state_dict, name_pth+'.branch0', name_tf+'/Branch_0/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1.0', name_tf+'/Branch_1/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1.1', name_tf+'/Branch_1/Conv2d_0b_1x7')
+    load_conv2d(state_dict, name_pth+'.branch1.2', name_tf+'/Branch_1/Conv2d_0c_7x1')
+    load_conv2d(state_dict, name_pth+'.branch2.0', name_tf+'/Branch_2/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch2.1', name_tf+'/Branch_2/Conv2d_0b_7x1')
+    load_conv2d(state_dict, name_pth+'.branch2.2', name_tf+'/Branch_2/Conv2d_0c_1x7')
+    load_conv2d(state_dict, name_pth+'.branch2.3', name_tf+'/Branch_2/Conv2d_0d_7x1')
+    load_conv2d(state_dict, name_pth+'.branch2.4', name_tf+'/Branch_2/Conv2d_0e_1x7')
+    load_conv2d(state_dict, name_pth+'.branch3.1', name_tf+'/Branch_3/Conv2d_0b_1x1')
 
 def load_mixed_7(state_dict, name_pth, name_tf):
-    load_conv2d(state_dict, name_pth+'.block0', name_tf+'/Branch_0/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1_0', name_tf+'/Branch_1/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block1_1a', name_tf+'/Branch_1/Conv2d_0b_1x3')
-    load_conv2d(state_dict, name_pth+'.block1_1b', name_tf+'/Branch_1/Conv2d_0c_3x1')
-    load_conv2d(state_dict, name_pth+'.block2_0', name_tf+'/Branch_2/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth+'.block2_1', name_tf+'/Branch_2/Conv2d_0b_3x1')
-    load_conv2d(state_dict, name_pth+'.block2_2', name_tf+'/Branch_2/Conv2d_0c_1x3')
-    load_conv2d(state_dict, name_pth+'.block2_3a', name_tf+'/Branch_2/Conv2d_0d_1x3')
-    load_conv2d(state_dict, name_pth+'.block2_3b', name_tf+'/Branch_2/Conv2d_0e_3x1')
-    load_conv2d(state_dict, name_pth+'.block3.1', name_tf+'/Branch_3/Conv2d_0b_1x1')
+    load_conv2d(state_dict, name_pth+'.branch0', name_tf+'/Branch_0/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1_0', name_tf+'/Branch_1/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch1_1a', name_tf+'/Branch_1/Conv2d_0b_1x3')
+    load_conv2d(state_dict, name_pth+'.branch1_1b', name_tf+'/Branch_1/Conv2d_0c_3x1')
+    load_conv2d(state_dict, name_pth+'.branch2_0', name_tf+'/Branch_2/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth+'.branch2_1', name_tf+'/Branch_2/Conv2d_0b_3x1')
+    load_conv2d(state_dict, name_pth+'.branch2_2', name_tf+'/Branch_2/Conv2d_0c_1x3')
+    load_conv2d(state_dict, name_pth+'.branch2_3a', name_tf+'/Branch_2/Conv2d_0d_1x3')
+    load_conv2d(state_dict, name_pth+'.branch2_3b', name_tf+'/Branch_2/Conv2d_0e_3x1')
+    load_conv2d(state_dict, name_pth+'.branch3.1', name_tf+'/Branch_3/Conv2d_0b_1x1')
 
 
 def load():
@@ -348,10 +346,10 @@ def load():
     load_mixed_5(state_dict, name_pth='features.8', name_tf='Mixed_5d')
     load_mixed_5(state_dict, name_pth='features.9', name_tf='Mixed_5e')
 
-    load_conv2d(state_dict, name_pth='features.10.block0', name_tf='Mixed_6a/Branch_0/Conv2d_1a_3x3')
-    load_conv2d(state_dict, name_pth='features.10.block1.0', name_tf='Mixed_6a/Branch_1/Conv2d_0a_1x1')
-    load_conv2d(state_dict, name_pth='features.10.block1.1', name_tf='Mixed_6a/Branch_1/Conv2d_0b_3x3')
-    load_conv2d(state_dict, name_pth='features.10.block1.2', name_tf='Mixed_6a/Branch_1/Conv2d_1a_3x3')
+    load_conv2d(state_dict, name_pth='features.10.branch0', name_tf='Mixed_6a/Branch_0/Conv2d_1a_3x3')
+    load_conv2d(state_dict, name_pth='features.10.branch1.0', name_tf='Mixed_6a/Branch_1/Conv2d_0a_1x1')
+    load_conv2d(state_dict, name_pth='features.10.branch1.1', name_tf='Mixed_6a/Branch_1/Conv2d_0b_3x3')
+    load_conv2d(state_dict, name_pth='features.10.branch1.2', name_tf='Mixed_6a/Branch_1/Conv2d_1a_3x3')
 
     load_mixed_6(state_dict, name_pth='features.11', name_tf='Mixed_6b')
     load_mixed_6(state_dict, name_pth='features.12', name_tf='Mixed_6c')
@@ -404,32 +402,35 @@ def test_conv2d(module, name):
     module.register_forward_hook(test_dist)
 
 def test_mixed_4a_7a(module, name):
-    test_conv2d(module.block0[0], name+'/Branch_0/Conv2d_0a_1x1')
-    test_conv2d(module.block0[1], name+'/Branch_0/Conv2d_1a_3x3')
-    test_conv2d(module.block1[0], name+'/Branch_1/Conv2d_0a_1x1')
-    test_conv2d(module.block1[1], name+'/Branch_1/Conv2d_0b_1x7')
-    test_conv2d(module.block1[2], name+'/Branch_1/Conv2d_0c_7x1')
-    test_conv2d(module.block1[3], name+'/Branch_1/Conv2d_1a_3x3')
-
-
+    test_conv2d(module.branch0[0], name+'/Branch_0/Conv2d_0a_1x1')
+    test_conv2d(module.branch0[1], name+'/Branch_0/Conv2d_1a_3x3')
+    test_conv2d(module.branch1[0], name+'/Branch_1/Conv2d_0a_1x1')
+    test_conv2d(module.branch1[1], name+'/Branch_1/Conv2d_0b_1x7')
+    test_conv2d(module.branch1[2], name+'/Branch_1/Conv2d_0c_7x1')
+    test_conv2d(module.branch1[3], name+'/Branch_1/Conv2d_1a_3x3')
 
 ######################################################################
 ## Main
 ######################################################################
 
-model = InceptionV4()
-state_dict = load()
-model.load_state_dict(state_dict)
+if __name__ == "__main__":
 
-# test_conv2d(model.features[0], 'Conv2d_1a_3x3')
-# test_conv2d(model.features[1], 'Conv2d_2a_3x3')
-# test_conv2d(model.features[2], 'Conv2d_2b_3x3')
-# test_conv2d(model.features[3].conv, 'Mixed_3a/Branch_1/Conv2d_0a_3x3')
-# test_mixed_4a_7a(model.features[4], 'Mixed_4a')
+    import h5py
 
-torch.save(model, 'save/inceptionv4.pth')
-torch.save(state_dict, 'save/inceptionv4_state.pth')
+    model = InceptionV4()
+    state_dict = load()
+    model.load_state_dict(state_dict)
 
-outputs = test(model)
+    # test_conv2d(model.features[0], 'Conv2d_1a_3x3')
+    # test_conv2d(model.features[1], 'Conv2d_2a_3x3')
+    # test_conv2d(model.features[2], 'Conv2d_2b_3x3')
+    # test_conv2d(model.features[3].conv, 'Mixed_3a/Branch_1/Conv2d_0a_3x3')
+    # test_mixed_4a_7a(model.features[4], 'Mixed_4a')
+    
+    os.system('mkdir -p save')
+    torch.save(model, 'save/inceptionv4.pth')
+    torch.save(state_dict, 'save/inceptionv4_state.pth')
+
+    outputs = test(model)
 
 
