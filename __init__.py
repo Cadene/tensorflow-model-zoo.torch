@@ -1,0 +1,2 @@
+from inceptionresnetv2.pytorch_load import InceptionResnetV2
+from inceptionv4.pytorch_load import InceptionV4
