@@ -1,4 +1,7 @@
-# Tensorflow Model Zoo for Torch7 and PyTorch
+# Tensorflow Model Zoo for Torch7 and PyTorch (OBSOLETE)
+
+13/07/2017: Please use the new repo [pretrained-models.pytorch](https://github.com/Cadene/pretrained-models.pytorch) which includes inceptionv4 and inceptionresnetv2 with a nicer API.
+
 
 This is a porting of tensorflow pretrained models made by [Remi Cadene](http://remicadene.com) and [Micael Carvalho](http://micaelcarvalho.com). Special thanks to Moustapha Cissé. All models have been tested on Imagenet.
 
