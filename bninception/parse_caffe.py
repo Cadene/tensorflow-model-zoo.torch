@@ -11,7 +11,7 @@ parser.add_argument('--model_version', help="the version of Caffe's model spec, 
 
 args = parser.parse_args()
 
-import caffe_pb2
+from . import caffe_pb2
 from google.protobuf import text_format
 from pprint import pprint
 import yaml
@@ -21,20 +21,20 @@ import torch
 
 class CaffeVendor(object):
     def __init__(self, net_name, weight_name, version=2):
-        print "loading model spec..."
+        print("loading model spec...")
         self._net_pb = caffe_pb2.NetParameter()
         text_format.Merge(open(net_name).read(), self._net_pb)
         self._weight_dict = {}
         self._init_dict = []
 
         if weight_name is not None:
-            print "loading weights..."
+            print("loading weights...")
             self._weight_pb = caffe_pb2.NetParameter()
             self._weight_pb.ParseFromString(open(weight_name, 'rb').read())
             for l in self._weight_pb.layer:
                 self._weight_dict[l.name] = l
 
-        print "parsing..."
+        print("parsing...")
         self._parse_net(version)
 
     def _parse_net(self, version):
@@ -77,7 +77,7 @@ class CaffeVendor(object):
                 bottoms = [v.replace('-', '_').replace('/', '_') for v in value]
             elif field.name == 'include':
                 if value[0].phase == 1 and op == 'Data':
-                    print 'found 1 testing data layer'
+                    print('found 1 testing data layer')
                     return None, dict(), dict(), False
             elif field.name == 'type':
                 if version == 2:
@@ -100,7 +100,7 @@ class CaffeVendor(object):
                           attr_dict[f.name] = v
 
                 except:
-                    print field.name, value
+                    print(field.name, value)
                     raise
 
         expr_temp = '{top}<={op}<={input}'

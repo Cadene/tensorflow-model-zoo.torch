@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from layer_factory import get_basic_layer, parse_expr
+from .layer_factory import get_basic_layer, parse_expr
 import torch.utils.model_zoo as model_zoo
 import yaml
 
@@ -40,7 +40,7 @@ class BNInception(nn.Module):
         def get_hook(name):
 
             def hook(m, grad_in, grad_out):
-                print name, grad_out[0].data.abs().mean()
+                print(name, grad_out[0].data.abs().mean())
 
             return hook
         for op in self._op_list:
