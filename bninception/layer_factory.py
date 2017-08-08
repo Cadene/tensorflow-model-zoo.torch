@@ -53,7 +53,7 @@ def build_relu(attr, channels=None, conv_bias=False):
 
 
 def build_bn(attr, channels=None, conv_bias=False):
-    return nn.BatchNorm2d(channels, momentum=0.9), channels
+    return nn.BatchNorm2d(channels, momentum=0.1), channels
 
 
 def build_linear(attr, channels=None, conv_bias=False):
