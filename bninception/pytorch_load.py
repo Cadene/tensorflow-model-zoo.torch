@@ -31,7 +31,7 @@ class BNInception(nn.Module):
                 channel = sum([self._channel_dict[x] for x in in_var])
                 self._channel_dict[out_var[0]] = channel
 
-        self.load_state_dict(torch.utils.model_zoo.load_url('http://yjxiong.me/others/bn_inception-9f5701afb96c8044.pth'))
+        self.load_state_dict(torch.utils.model_zoo.load_url('https://yjxiong.blob.core.windows.net/models/bn_inception-9f5701afb96c8044.pth'))
 
     def forward(self, input):
         data_dict = dict()
