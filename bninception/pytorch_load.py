@@ -1,13 +1,13 @@
 import torch
 from torch import nn
-from layer_factory import get_basic_layer, parse_expr
+from .layer_factory import get_basic_layer, parse_expr
 import torch.utils.model_zoo as model_zoo
 import yaml
 
 
 class BNInception(nn.Module):
     def __init__(self, model_path='tf_model_zoo/bninception/bn_inception.yaml', num_classes=101,
-                       weight_url='http://yjxiong.me/others/bn_inception-9f5701afb96c8044.pth'):
+                       weight_url='https://yjxiong.blob.core.windows.net/models/bn_inception-9f5701afb96c8044.pth'):
         super(BNInception, self).__init__()
 
         manifest = yaml.load(open(model_path))
@@ -41,7 +41,7 @@ class BNInception(nn.Module):
         def get_hook(name):
 
             def hook(m, grad_in, grad_out):
-                print name, grad_out[0].data.abs().mean()
+                print(name, grad_out[0].data.abs().mean())
 
             return hook
         for op in self._op_list:
