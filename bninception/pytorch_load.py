@@ -59,4 +59,4 @@ class BNInception(nn.Module):
 class InceptionV3(BNInception):
     def __init__(self, model_path='tf_model_zoo/bninception/inceptionv3.yaml', num_classes=101,
                  weight_url='https://yjxiong.blob.core.windows.net/models/inceptionv3-cuhk-0e09b300b493bc74c.pth'):
-        super(InceptionV3, self).__init__(model_path=model_path, num_class=num_class)
+        super(InceptionV3, self).__init__(model_path=model_path, weight_url=weight_url, num_classes=num_classes)
