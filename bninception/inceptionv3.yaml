@@ -1,0 +1,821 @@
+inputs: []
+layers:
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 32, pad_h: 0, pad_w: 0, stride_h: 2,
+    stride_w: 2}
+  expr: conv_Conv2D<=Convolution<=data
+  id: conv_Conv2D
+- attrs: {}
+  expr: conv<=BN<=conv_Conv2D
+  id: conv_batchnorm
+- {expr: conv<=ReLU<=conv, id: conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 32, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: conv_1_Conv2D<=Convolution<=conv
+  id: conv_1_Conv2D
+- attrs: {}
+  expr: conv_1<=BN<=conv_1_Conv2D
+  id: conv_1_batchnorm
+- {expr: conv_1<=ReLU<=conv_1, id: conv_1}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 64, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: conv_2_Conv2D<=Convolution<=conv_1
+  id: conv_2_Conv2D
+- attrs: {}
+  expr: conv_2<=BN<=conv_2_Conv2D
+  id: conv_2_batchnorm
+- {expr: conv_2<=ReLU<=conv_2, id: conv_2}
+- attrs: {kernel_size: 3, mode: max, pad: 0, stride: 2}
+  expr: pool<=Pooling<=conv_2
+  id: pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 80, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: conv_3_Conv2D<=Convolution<=pool
+  id: conv_3_Conv2D
+- attrs: {}
+  expr: conv_3<=BN<=conv_3_Conv2D
+  id: conv_3_batchnorm
+- {expr: conv_3<=ReLU<=conv_3, id: conv_3}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: conv_4_Conv2D<=Convolution<=conv_3
+  id: conv_4_Conv2D
+- attrs: {}
+  expr: conv_4<=BN<=conv_4_Conv2D
+  id: conv_4_batchnorm
+- {expr: conv_4<=ReLU<=conv_4, id: conv_4}
+- attrs: {kernel_size: 3, mode: max, pad: 0, stride: 2}
+  expr: pool_1<=Pooling<=conv_4
+  id: pool_1
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_conv_Conv2D<=Convolution<=pool_1
+  id: mixed_conv_Conv2D
+- attrs: {}
+  expr: mixed_conv<=BN<=mixed_conv_Conv2D
+  id: mixed_conv_batchnorm
+- {expr: mixed_conv<=ReLU<=mixed_conv, id: mixed_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 48, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_tower_conv_Conv2D<=Convolution<=pool_1
+  id: mixed_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_tower_conv<=BN<=mixed_tower_conv_Conv2D
+  id: mixed_tower_conv_batchnorm
+- {expr: mixed_tower_conv<=ReLU<=mixed_tower_conv, id: mixed_tower_conv}
+- attrs: {kernel_h: 5, kernel_w: 5, num_output: 64, pad_h: 2, pad_w: 2, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_tower_conv_1_Conv2D<=Convolution<=mixed_tower_conv
+  id: mixed_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_tower_conv_1<=BN<=mixed_tower_conv_1_Conv2D
+  id: mixed_tower_conv_1_batchnorm
+- {expr: mixed_tower_conv_1<=ReLU<=mixed_tower_conv_1, id: mixed_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_tower_1_conv_Conv2D<=Convolution<=pool_1
+  id: mixed_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_tower_1_conv<=BN<=mixed_tower_1_conv_Conv2D
+  id: mixed_tower_1_conv_batchnorm
+- {expr: mixed_tower_1_conv<=ReLU<=mixed_tower_1_conv, id: mixed_tower_1_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_tower_1_conv_1_Conv2D<=Convolution<=mixed_tower_1_conv
+  id: mixed_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_tower_1_conv_1<=BN<=mixed_tower_1_conv_1_Conv2D
+  id: mixed_tower_1_conv_1_batchnorm
+- {expr: mixed_tower_1_conv_1<=ReLU<=mixed_tower_1_conv_1, id: mixed_tower_1_conv_1}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_tower_1_conv_2_Conv2D<=Convolution<=mixed_tower_1_conv_1
+  id: mixed_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_tower_1_conv_2<=BN<=mixed_tower_1_conv_2_Conv2D
+  id: mixed_tower_1_conv_2_batchnorm
+- {expr: mixed_tower_1_conv_2<=ReLU<=mixed_tower_1_conv_2, id: mixed_tower_1_conv_2}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_tower_2_pool<=Pooling<=pool_1
+  id: mixed_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 32, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_tower_2_conv_Conv2D<=Convolution<=mixed_tower_2_pool
+  id: mixed_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_tower_2_conv<=BN<=mixed_tower_2_conv_Conv2D
+  id: mixed_tower_2_conv_batchnorm
+- {expr: mixed_tower_2_conv<=ReLU<=mixed_tower_2_conv, id: mixed_tower_2_conv}
+- {expr: 'mixed_join<=Concat<=mixed_conv,mixed_tower_conv_1,mixed_tower_1_conv_2,mixed_tower_2_conv',
+  id: mixed_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_conv_Conv2D<=Convolution<=mixed_join
+  id: mixed_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_1_conv<=BN<=mixed_1_conv_Conv2D
+  id: mixed_1_conv_batchnorm
+- {expr: mixed_1_conv<=ReLU<=mixed_1_conv, id: mixed_1_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 48, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_tower_conv_Conv2D<=Convolution<=mixed_join
+  id: mixed_1_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_1_tower_conv<=BN<=mixed_1_tower_conv_Conv2D
+  id: mixed_1_tower_conv_batchnorm
+- {expr: mixed_1_tower_conv<=ReLU<=mixed_1_tower_conv, id: mixed_1_tower_conv}
+- attrs: {kernel_h: 5, kernel_w: 5, num_output: 64, pad_h: 2, pad_w: 2, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_tower_conv_1_Conv2D<=Convolution<=mixed_1_tower_conv
+  id: mixed_1_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_1_tower_conv_1<=BN<=mixed_1_tower_conv_1_Conv2D
+  id: mixed_1_tower_conv_1_batchnorm
+- {expr: mixed_1_tower_conv_1<=ReLU<=mixed_1_tower_conv_1, id: mixed_1_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_tower_1_conv_Conv2D<=Convolution<=mixed_join
+  id: mixed_1_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_1_tower_1_conv<=BN<=mixed_1_tower_1_conv_Conv2D
+  id: mixed_1_tower_1_conv_batchnorm
+- {expr: mixed_1_tower_1_conv<=ReLU<=mixed_1_tower_1_conv, id: mixed_1_tower_1_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_tower_1_conv_1_Conv2D<=Convolution<=mixed_1_tower_1_conv
+  id: mixed_1_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_1_tower_1_conv_1<=BN<=mixed_1_tower_1_conv_1_Conv2D
+  id: mixed_1_tower_1_conv_1_batchnorm
+- {expr: mixed_1_tower_1_conv_1<=ReLU<=mixed_1_tower_1_conv_1, id: mixed_1_tower_1_conv_1}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_tower_1_conv_2_Conv2D<=Convolution<=mixed_1_tower_1_conv_1
+  id: mixed_1_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_1_tower_1_conv_2<=BN<=mixed_1_tower_1_conv_2_Conv2D
+  id: mixed_1_tower_1_conv_2_batchnorm
+- {expr: mixed_1_tower_1_conv_2<=ReLU<=mixed_1_tower_1_conv_2, id: mixed_1_tower_1_conv_2}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_1_tower_2_pool<=Pooling<=mixed_join
+  id: mixed_1_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_1_tower_2_conv_Conv2D<=Convolution<=mixed_1_tower_2_pool
+  id: mixed_1_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_1_tower_2_conv<=BN<=mixed_1_tower_2_conv_Conv2D
+  id: mixed_1_tower_2_conv_batchnorm
+- {expr: mixed_1_tower_2_conv<=ReLU<=mixed_1_tower_2_conv, id: mixed_1_tower_2_conv}
+- {expr: 'mixed_1_join<=Concat<=mixed_1_conv,mixed_1_tower_conv_1,mixed_1_tower_1_conv_2,mixed_1_tower_2_conv',
+  id: mixed_1_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_conv_Conv2D<=Convolution<=mixed_1_join
+  id: mixed_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_2_conv<=BN<=mixed_2_conv_Conv2D
+  id: mixed_2_conv_batchnorm
+- {expr: mixed_2_conv<=ReLU<=mixed_2_conv, id: mixed_2_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 48, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_tower_conv_Conv2D<=Convolution<=mixed_1_join
+  id: mixed_2_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_2_tower_conv<=BN<=mixed_2_tower_conv_Conv2D
+  id: mixed_2_tower_conv_batchnorm
+- {expr: mixed_2_tower_conv<=ReLU<=mixed_2_tower_conv, id: mixed_2_tower_conv}
+- attrs: {kernel_h: 5, kernel_w: 5, num_output: 64, pad_h: 2, pad_w: 2, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_tower_conv_1_Conv2D<=Convolution<=mixed_2_tower_conv
+  id: mixed_2_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_2_tower_conv_1<=BN<=mixed_2_tower_conv_1_Conv2D
+  id: mixed_2_tower_conv_1_batchnorm
+- {expr: mixed_2_tower_conv_1<=ReLU<=mixed_2_tower_conv_1, id: mixed_2_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_tower_1_conv_Conv2D<=Convolution<=mixed_1_join
+  id: mixed_2_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_2_tower_1_conv<=BN<=mixed_2_tower_1_conv_Conv2D
+  id: mixed_2_tower_1_conv_batchnorm
+- {expr: mixed_2_tower_1_conv<=ReLU<=mixed_2_tower_1_conv, id: mixed_2_tower_1_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_tower_1_conv_1_Conv2D<=Convolution<=mixed_2_tower_1_conv
+  id: mixed_2_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_2_tower_1_conv_1<=BN<=mixed_2_tower_1_conv_1_Conv2D
+  id: mixed_2_tower_1_conv_1_batchnorm
+- {expr: mixed_2_tower_1_conv_1<=ReLU<=mixed_2_tower_1_conv_1, id: mixed_2_tower_1_conv_1}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_tower_1_conv_2_Conv2D<=Convolution<=mixed_2_tower_1_conv_1
+  id: mixed_2_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_2_tower_1_conv_2<=BN<=mixed_2_tower_1_conv_2_Conv2D
+  id: mixed_2_tower_1_conv_2_batchnorm
+- {expr: mixed_2_tower_1_conv_2<=ReLU<=mixed_2_tower_1_conv_2, id: mixed_2_tower_1_conv_2}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_2_tower_2_pool<=Pooling<=mixed_1_join
+  id: mixed_2_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_2_tower_2_conv_Conv2D<=Convolution<=mixed_2_tower_2_pool
+  id: mixed_2_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_2_tower_2_conv<=BN<=mixed_2_tower_2_conv_Conv2D
+  id: mixed_2_tower_2_conv_batchnorm
+- {expr: mixed_2_tower_2_conv<=ReLU<=mixed_2_tower_2_conv, id: mixed_2_tower_2_conv}
+- {expr: 'mixed_2_join<=Concat<=mixed_2_conv,mixed_2_tower_conv_1,mixed_2_tower_1_conv_2,mixed_2_tower_2_conv',
+  id: mixed_2_join}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 384, pad_h: 0, pad_w: 0, stride_h: 2,
+    stride_w: 2}
+  expr: mixed_3_conv_Conv2D<=Convolution<=mixed_2_join
+  id: mixed_3_conv_Conv2D
+- attrs: {}
+  expr: mixed_3_conv<=BN<=mixed_3_conv_Conv2D
+  id: mixed_3_conv_batchnorm
+- {expr: mixed_3_conv<=ReLU<=mixed_3_conv, id: mixed_3_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 64, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_3_tower_conv_Conv2D<=Convolution<=mixed_2_join
+  id: mixed_3_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_3_tower_conv<=BN<=mixed_3_tower_conv_Conv2D
+  id: mixed_3_tower_conv_batchnorm
+- {expr: mixed_3_tower_conv<=ReLU<=mixed_3_tower_conv, id: mixed_3_tower_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_3_tower_conv_1_Conv2D<=Convolution<=mixed_3_tower_conv
+  id: mixed_3_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_3_tower_conv_1<=BN<=mixed_3_tower_conv_1_Conv2D
+  id: mixed_3_tower_conv_1_batchnorm
+- {expr: mixed_3_tower_conv_1<=ReLU<=mixed_3_tower_conv_1, id: mixed_3_tower_conv_1}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 96, pad_h: 0, pad_w: 0, stride_h: 2,
+    stride_w: 2}
+  expr: mixed_3_tower_conv_2_Conv2D<=Convolution<=mixed_3_tower_conv_1
+  id: mixed_3_tower_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_3_tower_conv_2<=BN<=mixed_3_tower_conv_2_Conv2D
+  id: mixed_3_tower_conv_2_batchnorm
+- {expr: mixed_3_tower_conv_2<=ReLU<=mixed_3_tower_conv_2, id: mixed_3_tower_conv_2}
+- attrs: {kernel_size: 3, mode: max, pad: 0, stride: 2}
+  expr: mixed_3_pool<=Pooling<=mixed_2_join
+  id: mixed_3_pool
+- {expr: 'mixed_3_join<=Concat<=mixed_3_conv,mixed_3_tower_conv_2,mixed_3_pool', id: mixed_3_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_conv_Conv2D<=Convolution<=mixed_3_join
+  id: mixed_4_conv_Conv2D
+- attrs: {}
+  expr: mixed_4_conv<=BN<=mixed_4_conv_Conv2D
+  id: mixed_4_conv_batchnorm
+- {expr: mixed_4_conv<=ReLU<=mixed_4_conv, id: mixed_4_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 128, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_conv_Conv2D<=Convolution<=mixed_3_join
+  id: mixed_4_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_conv<=BN<=mixed_4_tower_conv_Conv2D
+  id: mixed_4_tower_conv_batchnorm
+- {expr: mixed_4_tower_conv<=ReLU<=mixed_4_tower_conv, id: mixed_4_tower_conv}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 128, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_conv_1_Conv2D<=Convolution<=mixed_4_tower_conv
+  id: mixed_4_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_conv_1<=BN<=mixed_4_tower_conv_1_Conv2D
+  id: mixed_4_tower_conv_1_batchnorm
+- {expr: mixed_4_tower_conv_1<=ReLU<=mixed_4_tower_conv_1, id: mixed_4_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_conv_2_Conv2D<=Convolution<=mixed_4_tower_conv_1
+  id: mixed_4_tower_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_conv_2<=BN<=mixed_4_tower_conv_2_Conv2D
+  id: mixed_4_tower_conv_2_batchnorm
+- {expr: mixed_4_tower_conv_2<=ReLU<=mixed_4_tower_conv_2, id: mixed_4_tower_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 128, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_1_conv_Conv2D<=Convolution<=mixed_3_join
+  id: mixed_4_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_1_conv<=BN<=mixed_4_tower_1_conv_Conv2D
+  id: mixed_4_tower_1_conv_batchnorm
+- {expr: mixed_4_tower_1_conv<=ReLU<=mixed_4_tower_1_conv, id: mixed_4_tower_1_conv}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 128, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_1_conv_1_Conv2D<=Convolution<=mixed_4_tower_1_conv
+  id: mixed_4_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_1_conv_1<=BN<=mixed_4_tower_1_conv_1_Conv2D
+  id: mixed_4_tower_1_conv_1_batchnorm
+- {expr: mixed_4_tower_1_conv_1<=ReLU<=mixed_4_tower_1_conv_1, id: mixed_4_tower_1_conv_1}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 128, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_1_conv_2_Conv2D<=Convolution<=mixed_4_tower_1_conv_1
+  id: mixed_4_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_1_conv_2<=BN<=mixed_4_tower_1_conv_2_Conv2D
+  id: mixed_4_tower_1_conv_2_batchnorm
+- {expr: mixed_4_tower_1_conv_2<=ReLU<=mixed_4_tower_1_conv_2, id: mixed_4_tower_1_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 128, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_1_conv_3_Conv2D<=Convolution<=mixed_4_tower_1_conv_2
+  id: mixed_4_tower_1_conv_3_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_1_conv_3<=BN<=mixed_4_tower_1_conv_3_Conv2D
+  id: mixed_4_tower_1_conv_3_batchnorm
+- {expr: mixed_4_tower_1_conv_3<=ReLU<=mixed_4_tower_1_conv_3, id: mixed_4_tower_1_conv_3}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_1_conv_4_Conv2D<=Convolution<=mixed_4_tower_1_conv_3
+  id: mixed_4_tower_1_conv_4_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_1_conv_4<=BN<=mixed_4_tower_1_conv_4_Conv2D
+  id: mixed_4_tower_1_conv_4_batchnorm
+- {expr: mixed_4_tower_1_conv_4<=ReLU<=mixed_4_tower_1_conv_4, id: mixed_4_tower_1_conv_4}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_4_tower_2_pool<=Pooling<=mixed_3_join
+  id: mixed_4_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_4_tower_2_conv_Conv2D<=Convolution<=mixed_4_tower_2_pool
+  id: mixed_4_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_4_tower_2_conv<=BN<=mixed_4_tower_2_conv_Conv2D
+  id: mixed_4_tower_2_conv_batchnorm
+- {expr: mixed_4_tower_2_conv<=ReLU<=mixed_4_tower_2_conv, id: mixed_4_tower_2_conv}
+- {expr: 'mixed_4_join<=Concat<=mixed_4_conv,mixed_4_tower_conv_2,mixed_4_tower_1_conv_4,mixed_4_tower_2_conv',
+  id: mixed_4_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_conv_Conv2D<=Convolution<=mixed_4_join
+  id: mixed_5_conv_Conv2D
+- attrs: {}
+  expr: mixed_5_conv<=BN<=mixed_5_conv_Conv2D
+  id: mixed_5_conv_batchnorm
+- {expr: mixed_5_conv<=ReLU<=mixed_5_conv, id: mixed_5_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 160, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_conv_Conv2D<=Convolution<=mixed_4_join
+  id: mixed_5_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_conv<=BN<=mixed_5_tower_conv_Conv2D
+  id: mixed_5_tower_conv_batchnorm
+- {expr: mixed_5_tower_conv<=ReLU<=mixed_5_tower_conv, id: mixed_5_tower_conv}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 160, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_conv_1_Conv2D<=Convolution<=mixed_5_tower_conv
+  id: mixed_5_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_conv_1<=BN<=mixed_5_tower_conv_1_Conv2D
+  id: mixed_5_tower_conv_1_batchnorm
+- {expr: mixed_5_tower_conv_1<=ReLU<=mixed_5_tower_conv_1, id: mixed_5_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_conv_2_Conv2D<=Convolution<=mixed_5_tower_conv_1
+  id: mixed_5_tower_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_conv_2<=BN<=mixed_5_tower_conv_2_Conv2D
+  id: mixed_5_tower_conv_2_batchnorm
+- {expr: mixed_5_tower_conv_2<=ReLU<=mixed_5_tower_conv_2, id: mixed_5_tower_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 160, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_1_conv_Conv2D<=Convolution<=mixed_4_join
+  id: mixed_5_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_1_conv<=BN<=mixed_5_tower_1_conv_Conv2D
+  id: mixed_5_tower_1_conv_batchnorm
+- {expr: mixed_5_tower_1_conv<=ReLU<=mixed_5_tower_1_conv, id: mixed_5_tower_1_conv}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 160, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_1_conv_1_Conv2D<=Convolution<=mixed_5_tower_1_conv
+  id: mixed_5_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_1_conv_1<=BN<=mixed_5_tower_1_conv_1_Conv2D
+  id: mixed_5_tower_1_conv_1_batchnorm
+- {expr: mixed_5_tower_1_conv_1<=ReLU<=mixed_5_tower_1_conv_1, id: mixed_5_tower_1_conv_1}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 160, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_1_conv_2_Conv2D<=Convolution<=mixed_5_tower_1_conv_1
+  id: mixed_5_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_1_conv_2<=BN<=mixed_5_tower_1_conv_2_Conv2D
+  id: mixed_5_tower_1_conv_2_batchnorm
+- {expr: mixed_5_tower_1_conv_2<=ReLU<=mixed_5_tower_1_conv_2, id: mixed_5_tower_1_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 160, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_1_conv_3_Conv2D<=Convolution<=mixed_5_tower_1_conv_2
+  id: mixed_5_tower_1_conv_3_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_1_conv_3<=BN<=mixed_5_tower_1_conv_3_Conv2D
+  id: mixed_5_tower_1_conv_3_batchnorm
+- {expr: mixed_5_tower_1_conv_3<=ReLU<=mixed_5_tower_1_conv_3, id: mixed_5_tower_1_conv_3}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_1_conv_4_Conv2D<=Convolution<=mixed_5_tower_1_conv_3
+  id: mixed_5_tower_1_conv_4_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_1_conv_4<=BN<=mixed_5_tower_1_conv_4_Conv2D
+  id: mixed_5_tower_1_conv_4_batchnorm
+- {expr: mixed_5_tower_1_conv_4<=ReLU<=mixed_5_tower_1_conv_4, id: mixed_5_tower_1_conv_4}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_5_tower_2_pool<=Pooling<=mixed_4_join
+  id: mixed_5_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_5_tower_2_conv_Conv2D<=Convolution<=mixed_5_tower_2_pool
+  id: mixed_5_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_5_tower_2_conv<=BN<=mixed_5_tower_2_conv_Conv2D
+  id: mixed_5_tower_2_conv_batchnorm
+- {expr: mixed_5_tower_2_conv<=ReLU<=mixed_5_tower_2_conv, id: mixed_5_tower_2_conv}
+- {expr: 'mixed_5_join<=Concat<=mixed_5_conv,mixed_5_tower_conv_2,mixed_5_tower_1_conv_4,mixed_5_tower_2_conv',
+  id: mixed_5_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_conv_Conv2D<=Convolution<=mixed_5_join
+  id: mixed_6_conv_Conv2D
+- attrs: {}
+  expr: mixed_6_conv<=BN<=mixed_6_conv_Conv2D
+  id: mixed_6_conv_batchnorm
+- {expr: mixed_6_conv<=ReLU<=mixed_6_conv, id: mixed_6_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 160, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_conv_Conv2D<=Convolution<=mixed_5_join
+  id: mixed_6_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_conv<=BN<=mixed_6_tower_conv_Conv2D
+  id: mixed_6_tower_conv_batchnorm
+- {expr: mixed_6_tower_conv<=ReLU<=mixed_6_tower_conv, id: mixed_6_tower_conv}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 160, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_conv_1_Conv2D<=Convolution<=mixed_6_tower_conv
+  id: mixed_6_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_conv_1<=BN<=mixed_6_tower_conv_1_Conv2D
+  id: mixed_6_tower_conv_1_batchnorm
+- {expr: mixed_6_tower_conv_1<=ReLU<=mixed_6_tower_conv_1, id: mixed_6_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_conv_2_Conv2D<=Convolution<=mixed_6_tower_conv_1
+  id: mixed_6_tower_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_conv_2<=BN<=mixed_6_tower_conv_2_Conv2D
+  id: mixed_6_tower_conv_2_batchnorm
+- {expr: mixed_6_tower_conv_2<=ReLU<=mixed_6_tower_conv_2, id: mixed_6_tower_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 160, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_1_conv_Conv2D<=Convolution<=mixed_5_join
+  id: mixed_6_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_1_conv<=BN<=mixed_6_tower_1_conv_Conv2D
+  id: mixed_6_tower_1_conv_batchnorm
+- {expr: mixed_6_tower_1_conv<=ReLU<=mixed_6_tower_1_conv, id: mixed_6_tower_1_conv}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 160, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_1_conv_1_Conv2D<=Convolution<=mixed_6_tower_1_conv
+  id: mixed_6_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_1_conv_1<=BN<=mixed_6_tower_1_conv_1_Conv2D
+  id: mixed_6_tower_1_conv_1_batchnorm
+- {expr: mixed_6_tower_1_conv_1<=ReLU<=mixed_6_tower_1_conv_1, id: mixed_6_tower_1_conv_1}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 160, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_1_conv_2_Conv2D<=Convolution<=mixed_6_tower_1_conv_1
+  id: mixed_6_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_1_conv_2<=BN<=mixed_6_tower_1_conv_2_Conv2D
+  id: mixed_6_tower_1_conv_2_batchnorm
+- {expr: mixed_6_tower_1_conv_2<=ReLU<=mixed_6_tower_1_conv_2, id: mixed_6_tower_1_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 160, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_1_conv_3_Conv2D<=Convolution<=mixed_6_tower_1_conv_2
+  id: mixed_6_tower_1_conv_3_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_1_conv_3<=BN<=mixed_6_tower_1_conv_3_Conv2D
+  id: mixed_6_tower_1_conv_3_batchnorm
+- {expr: mixed_6_tower_1_conv_3<=ReLU<=mixed_6_tower_1_conv_3, id: mixed_6_tower_1_conv_3}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_1_conv_4_Conv2D<=Convolution<=mixed_6_tower_1_conv_3
+  id: mixed_6_tower_1_conv_4_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_1_conv_4<=BN<=mixed_6_tower_1_conv_4_Conv2D
+  id: mixed_6_tower_1_conv_4_batchnorm
+- {expr: mixed_6_tower_1_conv_4<=ReLU<=mixed_6_tower_1_conv_4, id: mixed_6_tower_1_conv_4}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_6_tower_2_pool<=Pooling<=mixed_5_join
+  id: mixed_6_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_6_tower_2_conv_Conv2D<=Convolution<=mixed_6_tower_2_pool
+  id: mixed_6_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_6_tower_2_conv<=BN<=mixed_6_tower_2_conv_Conv2D
+  id: mixed_6_tower_2_conv_batchnorm
+- {expr: mixed_6_tower_2_conv<=ReLU<=mixed_6_tower_2_conv, id: mixed_6_tower_2_conv}
+- {expr: 'mixed_6_join<=Concat<=mixed_6_conv,mixed_6_tower_conv_2,mixed_6_tower_1_conv_4,mixed_6_tower_2_conv',
+  id: mixed_6_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_conv_Conv2D<=Convolution<=mixed_6_join
+  id: mixed_7_conv_Conv2D
+- attrs: {}
+  expr: mixed_7_conv<=BN<=mixed_7_conv_Conv2D
+  id: mixed_7_conv_batchnorm
+- {expr: mixed_7_conv<=ReLU<=mixed_7_conv, id: mixed_7_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_conv_Conv2D<=Convolution<=mixed_6_join
+  id: mixed_7_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_conv<=BN<=mixed_7_tower_conv_Conv2D
+  id: mixed_7_tower_conv_batchnorm
+- {expr: mixed_7_tower_conv<=ReLU<=mixed_7_tower_conv, id: mixed_7_tower_conv}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_conv_1_Conv2D<=Convolution<=mixed_7_tower_conv
+  id: mixed_7_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_conv_1<=BN<=mixed_7_tower_conv_1_Conv2D
+  id: mixed_7_tower_conv_1_batchnorm
+- {expr: mixed_7_tower_conv_1<=ReLU<=mixed_7_tower_conv_1, id: mixed_7_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_conv_2_Conv2D<=Convolution<=mixed_7_tower_conv_1
+  id: mixed_7_tower_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_conv_2<=BN<=mixed_7_tower_conv_2_Conv2D
+  id: mixed_7_tower_conv_2_batchnorm
+- {expr: mixed_7_tower_conv_2<=ReLU<=mixed_7_tower_conv_2, id: mixed_7_tower_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_1_conv_Conv2D<=Convolution<=mixed_6_join
+  id: mixed_7_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_1_conv<=BN<=mixed_7_tower_1_conv_Conv2D
+  id: mixed_7_tower_1_conv_batchnorm
+- {expr: mixed_7_tower_1_conv<=ReLU<=mixed_7_tower_1_conv, id: mixed_7_tower_1_conv}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_1_conv_1_Conv2D<=Convolution<=mixed_7_tower_1_conv
+  id: mixed_7_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_1_conv_1<=BN<=mixed_7_tower_1_conv_1_Conv2D
+  id: mixed_7_tower_1_conv_1_batchnorm
+- {expr: mixed_7_tower_1_conv_1<=ReLU<=mixed_7_tower_1_conv_1, id: mixed_7_tower_1_conv_1}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_1_conv_2_Conv2D<=Convolution<=mixed_7_tower_1_conv_1
+  id: mixed_7_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_1_conv_2<=BN<=mixed_7_tower_1_conv_2_Conv2D
+  id: mixed_7_tower_1_conv_2_batchnorm
+- {expr: mixed_7_tower_1_conv_2<=ReLU<=mixed_7_tower_1_conv_2, id: mixed_7_tower_1_conv_2}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_1_conv_3_Conv2D<=Convolution<=mixed_7_tower_1_conv_2
+  id: mixed_7_tower_1_conv_3_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_1_conv_3<=BN<=mixed_7_tower_1_conv_3_Conv2D
+  id: mixed_7_tower_1_conv_3_batchnorm
+- {expr: mixed_7_tower_1_conv_3<=ReLU<=mixed_7_tower_1_conv_3, id: mixed_7_tower_1_conv_3}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_1_conv_4_Conv2D<=Convolution<=mixed_7_tower_1_conv_3
+  id: mixed_7_tower_1_conv_4_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_1_conv_4<=BN<=mixed_7_tower_1_conv_4_Conv2D
+  id: mixed_7_tower_1_conv_4_batchnorm
+- {expr: mixed_7_tower_1_conv_4<=ReLU<=mixed_7_tower_1_conv_4, id: mixed_7_tower_1_conv_4}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_7_tower_2_pool<=Pooling<=mixed_6_join
+  id: mixed_7_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_7_tower_2_conv_Conv2D<=Convolution<=mixed_7_tower_2_pool
+  id: mixed_7_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_7_tower_2_conv<=BN<=mixed_7_tower_2_conv_Conv2D
+  id: mixed_7_tower_2_conv_batchnorm
+- {expr: mixed_7_tower_2_conv<=ReLU<=mixed_7_tower_2_conv, id: mixed_7_tower_2_conv}
+- {expr: 'mixed_7_join<=Concat<=mixed_7_conv,mixed_7_tower_conv_2,mixed_7_tower_1_conv_4,mixed_7_tower_2_conv',
+  id: mixed_7_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_8_tower_conv_Conv2D<=Convolution<=mixed_7_join
+  id: mixed_8_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_8_tower_conv<=BN<=mixed_8_tower_conv_Conv2D
+  id: mixed_8_tower_conv_batchnorm
+- {expr: mixed_8_tower_conv<=ReLU<=mixed_8_tower_conv, id: mixed_8_tower_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 320, pad_h: 0, pad_w: 0, stride_h: 2,
+    stride_w: 2}
+  expr: mixed_8_tower_conv_1_Conv2D<=Convolution<=mixed_8_tower_conv
+  id: mixed_8_tower_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_8_tower_conv_1<=BN<=mixed_8_tower_conv_1_Conv2D
+  id: mixed_8_tower_conv_1_batchnorm
+- {expr: mixed_8_tower_conv_1<=ReLU<=mixed_8_tower_conv_1, id: mixed_8_tower_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_8_tower_1_conv_Conv2D<=Convolution<=mixed_7_join
+  id: mixed_8_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_8_tower_1_conv<=BN<=mixed_8_tower_1_conv_Conv2D
+  id: mixed_8_tower_1_conv_batchnorm
+- {expr: mixed_8_tower_1_conv<=ReLU<=mixed_8_tower_1_conv, id: mixed_8_tower_1_conv}
+- attrs: {kernel_h: 7, kernel_w: 1, num_output: 192, pad_h: 3, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_8_tower_1_conv_1_Conv2D<=Convolution<=mixed_8_tower_1_conv
+  id: mixed_8_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_8_tower_1_conv_1<=BN<=mixed_8_tower_1_conv_1_Conv2D
+  id: mixed_8_tower_1_conv_1_batchnorm
+- {expr: mixed_8_tower_1_conv_1<=ReLU<=mixed_8_tower_1_conv_1, id: mixed_8_tower_1_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 7, num_output: 192, pad_h: 0, pad_w: 3, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_8_tower_1_conv_2_Conv2D<=Convolution<=mixed_8_tower_1_conv_1
+  id: mixed_8_tower_1_conv_2_Conv2D
+- attrs: {}
+  expr: mixed_8_tower_1_conv_2<=BN<=mixed_8_tower_1_conv_2_Conv2D
+  id: mixed_8_tower_1_conv_2_batchnorm
+- {expr: mixed_8_tower_1_conv_2<=ReLU<=mixed_8_tower_1_conv_2, id: mixed_8_tower_1_conv_2}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 2,
+    stride_w: 2}
+  expr: mixed_8_tower_1_conv_3_Conv2D<=Convolution<=mixed_8_tower_1_conv_2
+  id: mixed_8_tower_1_conv_3_Conv2D
+- attrs: {}
+  expr: mixed_8_tower_1_conv_3<=BN<=mixed_8_tower_1_conv_3_Conv2D
+  id: mixed_8_tower_1_conv_3_batchnorm
+- {expr: mixed_8_tower_1_conv_3<=ReLU<=mixed_8_tower_1_conv_3, id: mixed_8_tower_1_conv_3}
+- attrs: {kernel_size: 3, mode: max, pad: 0, stride: 2}
+  expr: mixed_8_pool<=Pooling<=mixed_7_join
+  id: mixed_8_pool
+- {expr: 'mixed_8_join<=Concat<=mixed_8_tower_conv_1,mixed_8_tower_1_conv_3,mixed_8_pool',
+  id: mixed_8_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 320, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_conv_Conv2D<=Convolution<=mixed_8_join
+  id: mixed_9_conv_Conv2D
+- attrs: {}
+  expr: mixed_9_conv<=BN<=mixed_9_conv_Conv2D
+  id: mixed_9_conv_batchnorm
+- {expr: mixed_9_conv<=ReLU<=mixed_9_conv, id: mixed_9_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 384, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_conv_Conv2D<=Convolution<=mixed_8_join
+  id: mixed_9_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_conv<=BN<=mixed_9_tower_conv_Conv2D
+  id: mixed_9_tower_conv_batchnorm
+- {expr: mixed_9_tower_conv<=ReLU<=mixed_9_tower_conv, id: mixed_9_tower_conv}
+- attrs: {kernel_h: 3, kernel_w: 1, num_output: 384, pad_h: 1, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_mixed_conv_Conv2D<=Convolution<=mixed_9_tower_conv
+  id: mixed_9_tower_mixed_conv_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_mixed_conv<=BN<=mixed_9_tower_mixed_conv_Conv2D
+  id: mixed_9_tower_mixed_conv_batchnorm
+- {expr: mixed_9_tower_mixed_conv<=ReLU<=mixed_9_tower_mixed_conv, id: mixed_9_tower_mixed_conv}
+- attrs: {kernel_h: 1, kernel_w: 3, num_output: 384, pad_h: 0, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_mixed_conv_1_Conv2D<=Convolution<=mixed_9_tower_conv
+  id: mixed_9_tower_mixed_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_mixed_conv_1<=BN<=mixed_9_tower_mixed_conv_1_Conv2D
+  id: mixed_9_tower_mixed_conv_1_batchnorm
+- {expr: mixed_9_tower_mixed_conv_1<=ReLU<=mixed_9_tower_mixed_conv_1, id: mixed_9_tower_mixed_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 448, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_1_conv_Conv2D<=Convolution<=mixed_8_join
+  id: mixed_9_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_1_conv<=BN<=mixed_9_tower_1_conv_Conv2D
+  id: mixed_9_tower_1_conv_batchnorm
+- {expr: mixed_9_tower_1_conv<=ReLU<=mixed_9_tower_1_conv, id: mixed_9_tower_1_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 384, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_1_conv_1_Conv2D<=Convolution<=mixed_9_tower_1_conv
+  id: mixed_9_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_1_conv_1<=BN<=mixed_9_tower_1_conv_1_Conv2D
+  id: mixed_9_tower_1_conv_1_batchnorm
+- {expr: mixed_9_tower_1_conv_1<=ReLU<=mixed_9_tower_1_conv_1, id: mixed_9_tower_1_conv_1}
+- attrs: {kernel_h: 3, kernel_w: 1, num_output: 384, pad_h: 1, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_1_mixed_conv_Conv2D<=Convolution<=mixed_9_tower_1_conv_1
+  id: mixed_9_tower_1_mixed_conv_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_1_mixed_conv<=BN<=mixed_9_tower_1_mixed_conv_Conv2D
+  id: mixed_9_tower_1_mixed_conv_batchnorm
+- {expr: mixed_9_tower_1_mixed_conv<=ReLU<=mixed_9_tower_1_mixed_conv, id: mixed_9_tower_1_mixed_conv}
+- attrs: {kernel_h: 1, kernel_w: 3, num_output: 384, pad_h: 0, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_1_mixed_conv_1_Conv2D<=Convolution<=mixed_9_tower_1_conv_1
+  id: mixed_9_tower_1_mixed_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_1_mixed_conv_1<=BN<=mixed_9_tower_1_mixed_conv_1_Conv2D
+  id: mixed_9_tower_1_mixed_conv_1_batchnorm
+- {expr: mixed_9_tower_1_mixed_conv_1<=ReLU<=mixed_9_tower_1_mixed_conv_1, id: mixed_9_tower_1_mixed_conv_1}
+- attrs: {kernel_size: 3, mode: ave, pad: 1, stride: 1}
+  expr: mixed_9_tower_2_pool<=Pooling<=mixed_8_join
+  id: mixed_9_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_9_tower_2_conv_Conv2D<=Convolution<=mixed_9_tower_2_pool
+  id: mixed_9_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_9_tower_2_conv<=BN<=mixed_9_tower_2_conv_Conv2D
+  id: mixed_9_tower_2_conv_batchnorm
+- {expr: mixed_9_tower_2_conv<=ReLU<=mixed_9_tower_2_conv, id: mixed_9_tower_2_conv}
+- {expr: 'mixed_9_join<=Concat<=mixed_9_conv,mixed_9_tower_mixed_conv,mixed_9_tower_mixed_conv_1,mixed_9_tower_1_mixed_conv,mixed_9_tower_1_mixed_conv_1,mixed_9_tower_2_conv',
+  id: mixed_9_join}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 320, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_conv_Conv2D<=Convolution<=mixed_9_join
+  id: mixed_10_conv_Conv2D
+- attrs: {}
+  expr: mixed_10_conv<=BN<=mixed_10_conv_Conv2D
+  id: mixed_10_conv_batchnorm
+- {expr: mixed_10_conv<=ReLU<=mixed_10_conv, id: mixed_10_conv}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 384, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_conv_Conv2D<=Convolution<=mixed_9_join
+  id: mixed_10_tower_conv_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_conv<=BN<=mixed_10_tower_conv_Conv2D
+  id: mixed_10_tower_conv_batchnorm
+- {expr: mixed_10_tower_conv<=ReLU<=mixed_10_tower_conv, id: mixed_10_tower_conv}
+- attrs: {kernel_h: 3, kernel_w: 1, num_output: 384, pad_h: 1, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_mixed_conv_Conv2D<=Convolution<=mixed_10_tower_conv
+  id: mixed_10_tower_mixed_conv_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_mixed_conv<=BN<=mixed_10_tower_mixed_conv_Conv2D
+  id: mixed_10_tower_mixed_conv_batchnorm
+- {expr: mixed_10_tower_mixed_conv<=ReLU<=mixed_10_tower_mixed_conv, id: mixed_10_tower_mixed_conv}
+- attrs: {kernel_h: 1, kernel_w: 3, num_output: 384, pad_h: 0, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_mixed_conv_1_Conv2D<=Convolution<=mixed_10_tower_conv
+  id: mixed_10_tower_mixed_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_mixed_conv_1<=BN<=mixed_10_tower_mixed_conv_1_Conv2D
+  id: mixed_10_tower_mixed_conv_1_batchnorm
+- {expr: mixed_10_tower_mixed_conv_1<=ReLU<=mixed_10_tower_mixed_conv_1, id: mixed_10_tower_mixed_conv_1}
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 448, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_1_conv_Conv2D<=Convolution<=mixed_9_join
+  id: mixed_10_tower_1_conv_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_1_conv<=BN<=mixed_10_tower_1_conv_Conv2D
+  id: mixed_10_tower_1_conv_batchnorm
+- {expr: mixed_10_tower_1_conv<=ReLU<=mixed_10_tower_1_conv, id: mixed_10_tower_1_conv}
+- attrs: {kernel_h: 3, kernel_w: 3, num_output: 384, pad_h: 1, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_1_conv_1_Conv2D<=Convolution<=mixed_10_tower_1_conv
+  id: mixed_10_tower_1_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_1_conv_1<=BN<=mixed_10_tower_1_conv_1_Conv2D
+  id: mixed_10_tower_1_conv_1_batchnorm
+- {expr: mixed_10_tower_1_conv_1<=ReLU<=mixed_10_tower_1_conv_1, id: mixed_10_tower_1_conv_1}
+- attrs: {kernel_h: 3, kernel_w: 1, num_output: 384, pad_h: 1, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_1_mixed_conv_Conv2D<=Convolution<=mixed_10_tower_1_conv_1
+  id: mixed_10_tower_1_mixed_conv_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_1_mixed_conv<=BN<=mixed_10_tower_1_mixed_conv_Conv2D
+  id: mixed_10_tower_1_mixed_conv_batchnorm
+- {expr: mixed_10_tower_1_mixed_conv<=ReLU<=mixed_10_tower_1_mixed_conv, id: mixed_10_tower_1_mixed_conv}
+- attrs: {kernel_h: 1, kernel_w: 3, num_output: 384, pad_h: 0, pad_w: 1, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_1_mixed_conv_1_Conv2D<=Convolution<=mixed_10_tower_1_conv_1
+  id: mixed_10_tower_1_mixed_conv_1_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_1_mixed_conv_1<=BN<=mixed_10_tower_1_mixed_conv_1_Conv2D
+  id: mixed_10_tower_1_mixed_conv_1_batchnorm
+- {expr: mixed_10_tower_1_mixed_conv_1<=ReLU<=mixed_10_tower_1_mixed_conv_1, id: mixed_10_tower_1_mixed_conv_1}
+- attrs: {kernel_size: 3, mode: max, pad: 1, stride: 1}
+  expr: mixed_10_tower_2_pool<=Pooling<=mixed_9_join
+  id: mixed_10_tower_2_pool
+- attrs: {kernel_h: 1, kernel_w: 1, num_output: 192, pad_h: 0, pad_w: 0, stride_h: 1,
+    stride_w: 1}
+  expr: mixed_10_tower_2_conv_Conv2D<=Convolution<=mixed_10_tower_2_pool
+  id: mixed_10_tower_2_conv_Conv2D
+- attrs: {}
+  expr: mixed_10_tower_2_conv<=BN<=mixed_10_tower_2_conv_Conv2D
+  id: mixed_10_tower_2_conv_batchnorm
+- {expr: mixed_10_tower_2_conv<=ReLU<=mixed_10_tower_2_conv, id: mixed_10_tower_2_conv}
+- {expr: 'mixed_10_join<=Concat<=mixed_10_conv,mixed_10_tower_mixed_conv,mixed_10_tower_mixed_conv_1,mixed_10_tower_1_mixed_conv,mixed_10_tower_1_mixed_conv_1,mixed_10_tower_2_conv',
+  id: mixed_10_join}
+- attrs: {kernel_size: 8, mode: ave, pad: 0, stride: 1}
+  expr: top_cls_global_pool<=Pooling<=mixed_10_join
+  id: top_cls_pool
+- attrs: {num_output: 1000}
+  expr: fc<=InnerProduct<=top_cls_global_pool
+  id: top_cls_fc
+name: inception2
