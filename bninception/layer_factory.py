@@ -32,7 +32,7 @@ def build_conv(attr, channels=None, conv_bias=False):
     if 'stride' in attr or 'stride_w' in attr and 'stride_h' in attr:
         stride = attr['stride'] if 'stride' in attr else (attr['stride_h'], attr['stride_w'])
     else:
-        stride = 0
+        stride = 1
 
     conv = nn.Conv2d(channels, out_channels, ks, stride, padding, bias=conv_bias)
 

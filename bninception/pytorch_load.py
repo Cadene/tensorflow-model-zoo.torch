@@ -52,7 +52,12 @@ class BNInception(nn.Module):
                 x = data_dict[op[-1]]
                 data_dict[op[2]] = getattr(self, op[0])(x.view(x.size(0), -1))
             else:
-                data_dict[op[2]] = torch.cat(tuple(data_dict[x] for x in op[-1]), 1)
+                try:
+                    data_dict[op[2]] = torch.cat(tuple(data_dict[x] for x in op[-1]), 1)
+                except:
+                    for x in op[-1]:
+                        print(x,data_dict[x].size())
+                    raise
         return data_dict[self._op_list[-1][2]]
 
 
