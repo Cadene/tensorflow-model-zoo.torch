@@ -24,9 +24,15 @@ def get_basic_layer(info, channels=None, conv_bias=False):
 
 def build_conv(attr, channels=None, conv_bias=False):
     out_channels = attr['num_output']
-    ks = attr['kernel_size'] if 'kernel_size' in attr else (attr['kernel_w'], attr['kernel_h'])
-    padding = attr['pad'] if 'pad' in attr else 0
-    stride = attr['stride'] if 'stride' in attr else 1
+    ks = attr['kernel_size'] if 'kernel_size' in attr else (attr['kernel_h'], attr['kernel_w'])
+    if 'pad' in attr or 'pad_w' in attr and 'pad_h' in attr:
+        padding = attr['pad'] if 'pad' in attr else (attr['pad_h'], attr['pad_w'])
+    else:
+        padding = 0
+    if 'stride' in attr or 'stride_w' in attr and 'stride_h' in attr:
+        stride = attr['stride'] if 'stride' in attr else (attr['stride_h'], attr['stride_w'])
+    else:
+        stride = 1
 
     conv = nn.Conv2d(channels, out_channels, ks, stride, padding, bias=conv_bias)
 
